@@ -1,0 +1,115 @@
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">FreeLink</div>
+
+    <div class="admin-card">
+      <div class="avatar">👤</div>
+      <div>
+        <div class="admin-name">Administrator</div>
+       <div class="admin-email">admin&#64;freelink.com</div>
+
+      </div>
+    </div>
+
+    <nav>
+      <p class="nav-title">MAIN</p>
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/users">Users</a>
+      <a routerLink="/freelancers">Freelancers</a>
+      <a routerLink="/clients">Clients</a>
+
+      <p class="nav-title">JOBS</p>
+      <a routerLink="/jobs">Jobs</a>
+      <a routerLink="/applications">Applications</a>
+
+      <p class="nav-title">MANAGEMENT</p>
+      <a routerLink="/categories">Categories</a>
+      <a routerLink="/categories">reward</a>
+      <a routerLink="/evaluation">evaluation</a>
+      <a routerLink="/training">training</a>
+
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <input class="search" placeholder="Search users, jobs, applications...">
+
+      <div class="top-actions">
+        <button class="btn primary">Create Job</button>
+        <button class="btn outline">Export Report</button>
+      </div>
+    </header>
+
+    <!-- HEADER CARD -->
+    <section class="hero">
+      <h1>Admin Dashboard</h1>
+      <p>Monitor users, jobs and platform activity</p>
+
+      <div class="hero-buttons">
+        <button class="btn yellow">Create Job</button>
+        <button class="btn light">Export Report</button>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats">
+
+      <div class="card">
+        <p>Total Users</p>
+        <h2>2,184</h2>
+        <span class="green">+8%</span>
+      </div>
+
+      <div class="card">
+        <p>Active Jobs</p>
+        <h2>312</h2>
+        <span class="green">+12%</span>
+      </div>
+
+      <div class="card">
+        <p>Applications</p>
+        <h2>94</h2>
+        <span>Today</span>
+      </div>
+
+      <div class="card">
+        <p>Revenue</p>
+        <h2>$4,680</h2>
+        <span class="green">+5%</span>
+      </div>
+
+    </section>
+
+    <!-- USER SATISFACTION -->
+    <section class="satisfaction">
+      <h2>User Satisfaction</h2>
+
+      <div class="satisfaction-grid">
+
+        <div class="sat-card good">
+          <p>Satisfied Users</p>
+          <h1>78%</h1>
+          <span>Positive feedback</span>
+        </div>
+
+        <div class="sat-card bad">
+          <p>Unsatisfied Users</p>
+          <h1>22%</h1>
+          <span>Negative feedback</span>
+        </div>
+
+      </div>
+
+      <div class="progress">
+        <div class="bar" style="width:78%"></div>
+      </div>
+    </section>
+
+  </main>
+</div>

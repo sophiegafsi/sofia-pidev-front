@@ -1,0 +1,28 @@
+<div class="export-container">
+  <div class="export-card">
+    <h2>Export report</h2>
+    <p class="subtitle">Choose a format to export the current analytics report.</p>
+    
+    <div class="export-options">
+      <div class="export-option" (click)="exportAs('pdf')">
+        <span class="option-icon">📄</span>
+        <span class="option-label">PDF Document</span>
+        <span class="option-desc">Ideal for printing and sharing</span>
+      </div>
+      <div class="export-option" (click)="exportAs('csv')">
+        <span class="option-icon">📊</span>
+        <span class="option-label">CSV Spreadsheet</span>
+        <span class="option-desc">Raw data for analysis</span>
+      </div>
+      <div class="export-option" (click)="exportAs('json')">
+        <span class="option-icon">🔧</span>
+        <span class="option-label">JSON</span>
+        <span class="option-desc">For developers</span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="goBack()">← Back to Dashboard</button>
+    </div>
+  </div>
+</div>

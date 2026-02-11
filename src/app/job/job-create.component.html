@@ -1,0 +1,30 @@
+<div class="job-form-container">
+  <div class="job-form-card">
+    <h2>Create a new job offer</h2>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="title">Job title</label>
+        <input 
+          type="text" 
+          id="title" 
+          name="title" 
+          [(ngModel)]="jobTitle" 
+          required 
+          placeholder="e.g. Frontend Developer">
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          [(ngModel)]="jobDescription" 
+          rows="6" 
+          placeholder="Describe the role, requirements, etc."></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Publish job</button>
+        <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
