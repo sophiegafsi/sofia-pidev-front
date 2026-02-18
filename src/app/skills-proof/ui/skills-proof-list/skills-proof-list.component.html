@@ -1,0 +1,64 @@
+<div class="page">
+  <div class="hero">
+    <div class="left">
+      <div class="brand">FreeLink</div>
+      <h1>Gestion Skills Proof</h1>
+      <p *ngIf="skillIdFilter">Proofs liées à la skill #{{ skillIdFilter }}.</p>
+      <p *ngIf="!skillIdFilter">Ajoutez, modifiez et supprimez les preuves de compétences.</p>
+      <div class="actionRow">
+        <button class="btn primary" (click)="goNew()">+ Ajouter un proof</button>
+        <button class="btn ghost" (click)="goSkills()">Retour skills</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="search">
+        <input [(ngModel)]="q" placeholder="Rechercher proof..." />
+        <span class="pill">{{ filtered().length }} proofs</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="state" *ngIf="loading">Chargement...</div>
+
+    <div class="grid" *ngIf="!loading">
+      <div class="card" *ngFor="let p of filtered()">
+        <div class="top">
+          <div class="title">{{ p.title || '-' }}</div>
+          <!-- ✅ backend field = type -->
+          <div class="badge">{{ p.type || 'PROOF' }}</div>
+        </div>
+
+        <!-- skillId n'est pas toujours disponible depuis le backend,
+             donc on affiche '-' (ou tu peux l'ajouter au backend plus tard) -->
+        <div class="meta">
+          <div class="metaBox">
+            <div class="label">Skill liée</div>
+            <div class="value">{{ skillIdFilter || '-' }}</div>
+          </div>
+        </div>
+
+        <!-- description n'existe pas dans ton entity actuelle,
+             donc on retire ce bloc (ou on l'affiche si tu l'ajoutes plus tard) -->
+        <!-- <div class="desc">{{ p.description || '-' }}</div> -->
+
+        <!-- ✅ backend field = fileUrl -->
+        <a *ngIf="p.fileUrl" [href]="p.fileUrl" target="_blank" rel="noopener noreferrer" class="url">
+          Ouvrir preuve
+        </a>
+
+        <div class="actions">
+          <!-- si edit pas encore fait, tu peux enlever le bouton -->
+          <button class="btn ghost" (click)="goEdit(p.id)">Modifier</button>
+          <button class="btn danger" (click)="remove(p.id)">Supprimer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && filtered().length === 0">
+      Aucune preuve trouvée.
+    </div>
+  </div>
+</div>

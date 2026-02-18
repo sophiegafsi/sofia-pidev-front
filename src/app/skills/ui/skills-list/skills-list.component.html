@@ -1,0 +1,44 @@
+<div class="page">
+  <div class="hero">
+    <div class="left">
+      <div class="brand">FreeLink</div>
+      <h1>Gestion des Skills</h1>
+      <p>Ajoutez, modifiez et organisez les compétences.</p>
+
+      <button class="btn primary" (click)="goNew()">+ Ajouter une skill</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="grid">
+      <div class="card" *ngFor="let s of filtered()">
+        
+        <div class="top">
+          <div class="title">{{ s.name }}</div>
+          <div class="badge">{{ s.level }}</div>
+        </div>
+
+        <div class="meta">
+          <div><strong>Années:</strong> {{ s.yearsOfExperience }}</div>
+        </div>
+
+        <div class="desc">
+          {{ s.description || 'Aucune description' }}
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" (click)="goEdit(s.id)">Modifier</button>
+          <button class="btn ghost" (click)="goAddProof(s.id)">Ajouter Proof</button>
+          <button class="btn danger" (click)="remove(s.id)">Supprimer</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="filtered().length === 0">
+      Aucune skill trouvée.
+    </div>
+
+  </div>
+</div>

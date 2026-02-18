@@ -1,0 +1,45 @@
+<div class="page">
+  <div class="panel">
+    <div class="header">
+      <h2>Ajouter Skills Proof</h2>
+      <button class="btn ghost" (click)="back()">Retour</button>
+    </div>
+
+    <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="row">
+        <label>Skill</label>
+        <select formControlName="skillId">
+          <option [ngValue]="null">-- Choisir un skill --</option>
+          <option *ngFor="let s of skills" [ngValue]="s.id">
+            {{ s.name }} ({{ s.level }})
+          </option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Titre</label>
+        <input formControlName="title" placeholder="ex: Oracle Certificate" />
+      </div>
+
+      <div class="row">
+        <label>Type</label>
+        <select formControlName="type">
+          <option *ngFor="let t of proofTypes" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>URL du fichier</label>
+        <input formControlName="fileUrl" placeholder="https://..." />
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="submit" [disabled]="saving || form.invalid">
+          {{ saving ? 'Enregistrement...' : 'Créer Proof' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="page">
+  <div class="panel">
+    <div class="header">
+      <h2>{{ id ? 'Modifier Skill' : 'Ajouter Skill' }}</h2>
+      <button class="btn ghost" (click)="back()">Retour</button>
+    </div>
+
+    <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="row">
+        <label>Nom</label>
+        <input formControlName="name" placeholder="ex: Java, Angular..." />
+      </div>
+
+      <div class="row">
+        <label>Niveau</label>
+        <select formControlName="level">
+          <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Années d'expérience</label>
+        <input type="number" formControlName="yearsOfExperience" />
+      </div>
+
+      <div class="row">
+        <label>Description</label>
+        <textarea rows="4" formControlName="description"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="submit" [disabled]="saving || form.invalid">
+          {{ saving ? 'Enregistrement...' : (id ? 'Mettre à jour' : 'Créer') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -9,11 +9,15 @@ const routes: Routes = [
   { path: 'accueil', component: AccueilComponent },
   { path: 'profile-job', component: ProfileJobComponent },
   { path: 'profile-freelancer', component: ProfileFreelancerComponent },
-  { path: '**', redirectTo: '' }
+  { path: 'skills', loadChildren: () => import('./skills/skills.module').then((m) => m.SkillsModule) },
+  { path: 'skills-proof', loadChildren: () => import('./skills-proof/skills-proof.module').then(m => m.SkillsProofModule) },
+
+  { path: 'skills-proof', loadChildren: () => import('./skills-proof/skills-proof.module').then((m) => m.SkillsProofModule) },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
