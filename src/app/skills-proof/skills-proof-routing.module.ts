@@ -7,7 +7,7 @@ const routes: Routes = [
   { path: 'new', component: ProofFormComponent },
   { path: 'list', component: SkillsProofListComponent },
   { path: 'skill/:skillId', component: SkillsProofListComponent },
-  { path: '', redirectTo: 'new', pathMatch: 'full' },
+  { path: '', redirectTo: 'list', pathMatch: 'full' },
 ];
 
 @NgModule({

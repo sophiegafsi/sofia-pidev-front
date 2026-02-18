@@ -3,42 +3,56 @@
     <div class="left">
       <div class="brand">FreeLink</div>
       <h1>Gestion des Skills</h1>
-      <p>Ajoutez, modifiez et organisez les compétences.</p>
+      <p>Ajoutez, modifiez et organisez les competences.</p>
+      <div class="actionsTop">
+        <button class="btn primary" (click)="goNew()">+ Ajouter une skill</button>
+        <button class="btn ghost" (click)="goProofs()">Voir tous les proofs</button>
+      </div>
+    </div>
 
-      <button class="btn primary" (click)="goNew()">+ Ajouter une skill</button>
+    <div class="right">
+      <div class="search">
+        <input [(ngModel)]="q" placeholder="Rechercher (nom, niveau)..." />
+        <span class="pill">{{ filtered().length }} skills</span>
+      </div>
     </div>
   </div>
 
   <div class="content">
+    <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="state" *ngIf="loading">Chargement...</div>
 
-    <div class="grid">
+    <div class="grid" *ngIf="!loading">
       <div class="card" *ngFor="let s of filtered()">
-        
         <div class="top">
           <div class="title">{{ s.name }}</div>
           <div class="badge">{{ s.level }}</div>
         </div>
 
         <div class="meta">
-          <div><strong>Années:</strong> {{ s.yearsOfExperience }}</div>
+          <div class="metaBox">
+            <div class="label">Skill ID</div>
+            <div class="value">{{ s.id || '-' }}</div>
+          </div>
+          <div class="metaBox">
+            <div class="label">Annees</div>
+            <div class="value">{{ s.yearsOfExperience ?? 0 }}</div>
+          </div>
         </div>
 
-        <div class="desc">
-          {{ s.description || 'Aucune description' }}
-        </div>
+        <div class="desc">{{ s.description || 'Aucune description' }}</div>
 
         <div class="actions">
           <button class="btn ghost" (click)="goEdit(s.id)">Modifier</button>
-          <button class="btn ghost" (click)="goAddProof(s.id)">Ajouter Proof</button>
+          <button class="btn ghost" (click)="goProofs(s.id)">Voir proofs</button>
+          <button class="btn ghost" (click)="goAddProof(s.id)">Ajouter proof</button>
           <button class="btn danger" (click)="remove(s.id)">Supprimer</button>
         </div>
-
       </div>
     </div>
 
-    <div class="empty" *ngIf="filtered().length === 0">
-      Aucune skill trouvée.
+    <div class="empty" *ngIf="!loading && filtered().length === 0">
+      Aucune skill trouvee.
     </div>
-
   </div>
 </div>

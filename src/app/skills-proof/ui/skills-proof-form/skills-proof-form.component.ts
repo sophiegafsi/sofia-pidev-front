@@ -11,13 +11,12 @@ import { SkillsProofService } from '../../services/skills-proof.service';
   templateUrl: './skills-proof-form.component.html',
   styleUrls: ['./skills-proof-form.component.css'],
 })
-
-
 export class ProofFormComponent implements OnInit {
-  skills: Skill[] = [];
   proofTypes = PROOF_TYPE_OPTIONS;
   saving = false;
   errorMessage = '';
+  selectedSkillId?: number;
+  selectedSkillName = '';
 
   form: any;
 
@@ -37,15 +36,18 @@ export class ProofFormComponent implements OnInit {
       fileUrl: ['', [Validators.required]],
     });
 
-    // charger skills
-    this.skillsService.getAll().subscribe({
-      next: (data) => (this.skills = data || []),
-      error: (e) => console.error(e),
-    });
-
-    // si on vient depuis un skill spécifique
+    // If user comes from a specific skill card, bind proof to that skill automatically.
     const skillId = this.route.snapshot.queryParamMap.get('skillId');
-    if (skillId) this.form.patchValue({ skillId: Number(skillId) });
+    if (skillId) {
+      this.selectedSkillId = Number(skillId);
+      this.form.patchValue({ skillId: this.selectedSkillId });
+      this.form.get('skillId')?.disable();
+
+      this.skillsService.getById(this.selectedSkillId).subscribe({
+        next: (s: Skill) => (this.selectedSkillName = s?.name || ''),
+        error: (e) => console.error(e),
+      });
+    }
   }
 
   submit(): void {
@@ -57,7 +59,7 @@ export class ProofFormComponent implements OnInit {
     this.saving = true;
     this.errorMessage = '';
 
-    const skillId = Number(this.form.value.skillId);
+    const skillId = Number(this.selectedSkillId ?? this.form.getRawValue().skillId);
     const proof: SkillProof = {
       title: this.form.value.title,
       type: this.form.value.type,
@@ -68,11 +70,10 @@ export class ProofFormComponent implements OnInit {
       next: () => {
         this.saving = false;
         this.router.navigate(['/skills-proof/skill', skillId]);
-
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage = `Ajout proof échoué (HTTP ${err?.status ?? '??'}).`;
+        this.errorMessage = `Ajout proof echoue (HTTP ${err?.status ?? '??'}).`;
         this.saving = false;
       },
     });

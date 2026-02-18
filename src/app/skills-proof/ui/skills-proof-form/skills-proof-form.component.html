@@ -8,15 +8,20 @@
     <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
-      <div class="row">
-        <label>Skill</label>
-        <select formControlName="skillId">
-          <option [ngValue]="null">-- Choisir un skill --</option>
-          <option *ngFor="let s of skills" [ngValue]="s.id">
-            {{ s.name }} ({{ s.level }})
-          </option>
-        </select>
+      <div class="row" *ngIf="selectedSkillId; else manualSkillId">
+        <label>Skill liee</label>
+        <input [value]="'Skill #' + selectedSkillId + (selectedSkillName ? ' - ' + selectedSkillName : '')" disabled />
       </div>
+
+      <ng-template #manualSkillId>
+        <div class="row">
+          <label>Skill ID</label>
+          <input type="number" min="1" formControlName="skillId" placeholder="ex: 15" />
+          <small *ngIf="form.get('skillId')?.touched && form.get('skillId')?.invalid">
+            Skill ID obligatoire.
+          </small>
+        </div>
+      </ng-template>
 
       <div class="row">
         <label>Titre</label>
@@ -37,7 +42,7 @@
 
       <div class="actions">
         <button class="btn primary" type="submit" [disabled]="saving || form.invalid">
-          {{ saving ? 'Enregistrement...' : 'Créer Proof' }}
+          {{ saving ? 'Enregistrement...' : 'Creer Proof' }}
         </button>
       </div>
     </form>

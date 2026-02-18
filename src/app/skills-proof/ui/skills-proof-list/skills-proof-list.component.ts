@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Skill } from '../../../skills/models/skill.model';
+import { SkillsService } from '../../../skills/services/skills.service';
 import { SkillProof } from '../../models/skill-proof.model';
 import { SkillsProofService } from '../../services/skills-proof.service';
 
@@ -10,15 +12,15 @@ import { SkillsProofService } from '../../services/skills-proof.service';
 })
 export class SkillsProofListComponent implements OnInit {
   proofs: SkillProof[] = [];
+  skillsById = new Map<number, Skill>();
   loading = false;
   errorMessage = '';
-
-  // ✅ utilisés par le HTML
   q = '';
   skillIdFilter?: number;
 
   constructor(
     private proofsService: SkillsProofService,
+    private skillsService: SkillsService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -26,6 +28,7 @@ export class SkillsProofListComponent implements OnInit {
   ngOnInit(): void {
     const skillId = this.route.snapshot.paramMap.get('skillId');
     this.skillIdFilter = skillId ? Number(skillId) : undefined;
+    this.loadSkills();
     this.load();
   }
 
@@ -39,47 +42,63 @@ export class SkillsProofListComponent implements OnInit {
 
     obs.subscribe({
       next: (data: SkillProof[]) => {
-        this.proofs = data || [];
-        this.loading = false;
+        const direct = data || [];
+        if (direct.length > 0) {
+          this.proofs = direct;
+          this.loading = false;
+          return;
+        }
+        this.loadFromSkillsFallback();
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error(err);
-        this.errorMessage = "Impossible de charger les proofs. Vérifiez l'API backend.";
-        this.loading = false;
+        this.loadFromSkillsFallback();
       },
     });
   }
 
-  // ✅ utilisé par le HTML
+  loadSkills(): void {
+    this.skillsService.getAll().subscribe({
+      next: (skills: Skill[]) => {
+        this.skillsById.clear();
+        for (const s of skills || []) {
+          if (s.id) this.skillsById.set(s.id, s);
+        }
+      },
+      error: (err: unknown) => console.error(err),
+    });
+  }
+
   filtered(): SkillProof[] {
     const x = this.q.trim().toLowerCase();
     if (!x) return this.proofs;
 
-    return this.proofs.filter((p) =>
-      (p.title || '').toLowerCase().includes(x) ||
-      (p.type || '').toLowerCase().includes(x) ||
-      (p.fileUrl || '').toLowerCase().includes(x)
-    );
+    return this.proofs.filter((p) => {
+      const skillLabel = this.skillLabel(p).toLowerCase();
+      return (
+        (p.title || '').toLowerCase().includes(x) ||
+        (p.type || '').toLowerCase().includes(x) ||
+        (p.fileUrl || '').toLowerCase().includes(x) ||
+        skillLabel.includes(x)
+      );
+    });
   }
 
-  // ✅ utilisé par le HTML
+  skillLabel(p: SkillProof): string {
+    const id = p.skillId ?? p.skill?.id;
+    if (!id) return 'Skill inconnue';
+    const skill = this.skillsById.get(id);
+    return skill ? `Skill #${id} - ${skill.name}` : `Skill #${id}`;
+  }
+
   goNew(): void {
-    // si tu veux créer un proof pour un skill spécifique, on garde le filtre
-    const qp: any = {};
-    if (this.skillIdFilter) qp.skillId = this.skillIdFilter;
+    const qp: Record<string, number> = {};
+    if (this.skillIdFilter) qp['skillId'] = this.skillIdFilter;
     this.router.navigate(['/skills-proof/new'], { queryParams: qp });
   }
 
-  // ✅ utilisé par le HTML
   goSkills(): void {
     this.router.navigate(['/skills']);
-  }
-
-  // optionnel (si ton HTML a un bouton modifier)
-  goEdit(id?: number): void {
-    if (!id) return;
-    // si tu n'as pas encore une page edit, tu peux laisser vide
-    alert("Edit proof pas encore implémenté.");
   }
 
   remove(id?: number): void {
@@ -88,10 +107,51 @@ export class SkillsProofListComponent implements OnInit {
 
     this.proofsService.delete(id).subscribe({
       next: () => this.load(),
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error(err);
-        this.errorMessage = "Suppression échouée. Vérifiez l'API backend.";
+        this.errorMessage = "Suppression echouee. Verifiez l'API backend.";
       },
     });
+  }
+
+  private loadFromSkillsFallback(): void {
+    this.skillsService.getAll().subscribe({
+      next: (skills: Skill[]) => {
+        const rows: SkillProof[] = [];
+        for (const s of skills || []) {
+          const rawProofs = ((s as unknown as { proofs?: unknown[] }).proofs || []) as Array<Record<string, unknown>>;
+          for (const p of rawProofs) {
+            rows.push({
+              id: this.asNumber(p['id']),
+              title: String(p['title'] || ''),
+              type: String(p['type'] || 'OTHER').toUpperCase() as SkillProof['type'],
+              fileUrl: String(p['fileUrl'] || p['file_url'] || ''),
+              skillId: s.id,
+              skill: { id: s.id, name: s.name },
+            });
+          }
+        }
+
+        this.proofs = this.skillIdFilter
+          ? rows.filter((p) => (p.skillId ?? p.skill?.id) === this.skillIdFilter)
+          : rows;
+
+        this.errorMessage = this.proofs.length ? '' : "Aucune preuve trouvee.";
+        this.loading = false;
+      },
+      error: (err: unknown) => {
+        console.error(err);
+        this.errorMessage = "Impossible de charger les proofs. Verifiez l'API backend.";
+        this.loading = false;
+      },
+    });
+  }
+
+  private asNumber(value: unknown): number | undefined {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))) {
+      return Number(value);
+    }
+    return undefined;
   }
 }
