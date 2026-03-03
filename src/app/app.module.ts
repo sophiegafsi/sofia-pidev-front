@@ -1,12 +1,16 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AccueilComponent } from './accueil/accueil.component';
 import { ProfileJobComponent } from './profile-job/profile-job.component';
 import { ProfileFreelancerComponent } from './profile-freelancer/profile-freelancer.component';
+
+// ✅ si tu as SkillsModule et SkillsProofModule (ce que tu as créé)
+import { SkillsModule } from './skills/skills.module';
+import { SkillsProofModule } from './skills-proof/skills-proof.module';
 
 @NgModule({
   declarations: [
@@ -18,11 +22,13 @@ import { ProfileFreelancerComponent } from './profile-freelancer/profile-freelan
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule // ✅ obligatoire pour appeler le backend
+    SkillsModule,
+    SkillsProofModule
   ],
   providers: [
-    provideClientHydration()
+    provideClientHydration(),
+    provideHttpClient(withFetch()),
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

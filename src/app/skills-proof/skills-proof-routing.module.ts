@@ -5,6 +5,7 @@ import { SkillsProofListComponent } from './ui/skills-proof-list/skills-proof-li
 
 const routes: Routes = [
   { path: 'new', component: ProofFormComponent },
+  { path: 'edit/:id', component: ProofFormComponent },
   { path: 'list', component: SkillsProofListComponent },
   { path: 'skill/:skillId', component: SkillsProofListComponent },
   { path: '', redirectTo: 'list', pathMatch: 'full' },

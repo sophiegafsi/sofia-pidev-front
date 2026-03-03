@@ -3,11 +3,48 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { Skill } from '../models/skill.model';
 
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements?: number;
+  size?: number;
+  number?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SkillsService {
   private readonly baseUrl = 'http://localhost:8086/skills';
 
   constructor(private http: HttpClient) {}
+
+  search(
+    q: string,
+    page: number,
+    size: number,
+    sortField: string,
+    sortDir: 'asc' | 'desc',
+    level?: Skill['level'] | null
+  ): Observable<PageResponse<Skill>> {
+    const params: Record<string, string> = {
+      q: (q ?? '').trim(),
+      page: String(Math.max(0, page || 0)),
+      size: String(Math.max(1, size || 10)),
+      sort: `${sortField || 'id'},${sortDir || 'asc'}`,
+    };
+
+    if (level) params['level'] = String(level);
+
+    return this.trySequential<PageResponse<Skill>>([
+      () =>
+        this.http
+          .get<unknown>(`${this.baseUrl}/search`, { params })
+          .pipe(map((res) => this.normalizeSkillPage(res))),
+      () =>
+        this.http
+          .get<unknown>(this.baseUrl, { params })
+          .pipe(map((res) => this.normalizeSkillPage(res))),
+    ]);
+  }
 
   getAll(): Observable<Skill[]> {
     return this.trySequential<Skill[]>([
@@ -19,6 +56,12 @@ export class SkillsService {
       () => this.http.get(this.baseUrl, { responseType: 'text' }).pipe(map((res) => this.extractSkillsFromText(res))),
     ]);
   }
+
+  getScoreboard(size: number = 10) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/scoreboard?size=${size}`
+  );
+}
 
   getById(id: number): Observable<Skill> {
     return this.trySequential<Skill>([
@@ -76,6 +119,25 @@ export class SkillsService {
       if (Array.isArray(body[key])) return this.normalizeSkills(body[key] as unknown[]);
     }
     return [];
+  }
+
+  private normalizeSkillPage(res: unknown): PageResponse<Skill> {
+    if (Array.isArray(res)) {
+      return { content: this.normalizeSkills(res), totalPages: 1 };
+    }
+
+    const body = res as Record<string, unknown> | null;
+    if (!body) return { content: [], totalPages: 0 };
+
+    const contentRaw = body['content'];
+    const content = Array.isArray(contentRaw) ? this.normalizeSkills(contentRaw) : this.extractSkills(res);
+
+    const totalPages = this.asNumber(body['totalPages']) ?? 1;
+    const totalElements = this.asNumber(body['totalElements']);
+    const number = this.asNumber(body['number']);
+    const size = this.asNumber(body['size']);
+
+    return { content, totalPages, totalElements, number, size };
   }
 
   private normalizeSkills(rows: unknown[]): Skill[] {

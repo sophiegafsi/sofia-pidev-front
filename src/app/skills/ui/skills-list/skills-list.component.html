@@ -4,16 +4,46 @@
       <div class="brand">FreeLink</div>
       <h1>Gestion des Skills</h1>
       <p>Ajoutez, modifiez et organisez les competences.</p>
+
       <div class="actionsTop">
         <button class="btn primary" (click)="goNew()">+ Ajouter une skill</button>
         <button class="btn ghost" (click)="goProofs()">Voir tous les proofs</button>
+        <button class="btn ghost" routerLink="/skills/scoreboard">🏆 Scoreboard</button>
       </div>
     </div>
 
     <div class="right">
       <div class="search">
-        <input [(ngModel)]="q" placeholder="Rechercher (nom, niveau)..." />
-        <span class="pill">{{ filtered().length }} skills</span>
+        <input
+          [(ngModel)]="q"
+          (ngModelChange)="onQueryChange($event)"
+          placeholder="Rechercher (nom, niveau)..."
+        />
+        <span class="pill">{{ totalElements }} skills</span>
+      </div>
+
+      <div class="sort">
+        <label>Trier</label>
+        <select [(ngModel)]="sortField" (ngModelChange)="onSortChange()">
+          <option value="id">ID</option>
+          <option value="name">Nom</option>
+          <option value="level">Niveau</option>
+          <option value="yearsOfExperience">Années</option>
+        </select>
+
+        <button
+          class="btn ghost small"
+          type="button"
+          (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()"
+        >
+          {{ sortDir === 'asc' ? '↑' : '↓' }}
+        </button>
+      </div>
+
+      <div class="pager">
+        <button class="btn ghost small" type="button" (click)="prev()" [disabled]="page === 0">←</button>
+        <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+        <button class="btn ghost small" type="button" (click)="next()" [disabled]="page + 1 >= totalPages">→</button>
       </div>
     </div>
   </div>
@@ -23,7 +53,7 @@
     <div class="state" *ngIf="loading">Chargement...</div>
 
     <div class="grid" *ngIf="!loading">
-      <div class="card" *ngFor="let s of filtered()">
+      <div class="card" *ngFor="let s of skills; let i = index">
         <div class="top">
           <div class="title">{{ s.name }}</div>
           <div class="badge">{{ s.level }}</div>
@@ -31,9 +61,15 @@
 
         <div class="meta">
           <div class="metaBox">
+            <div class="label">N° (page)</div>
+            <div class="value">{{ (page * size) + (i + 1) }}</div>
+          </div>
+
+          <div class="metaBox">
             <div class="label">Skill ID</div>
             <div class="value">{{ s.id || '-' }}</div>
           </div>
+
           <div class="metaBox">
             <div class="label">Annees</div>
             <div class="value">{{ s.yearsOfExperience ?? 0 }}</div>
@@ -51,7 +87,7 @@
       </div>
     </div>
 
-    <div class="empty" *ngIf="!loading && filtered().length === 0">
+    <div class="empty" *ngIf="!loading && skills.length === 0">
       Aucune skill trouvee.
     </div>
   </div>

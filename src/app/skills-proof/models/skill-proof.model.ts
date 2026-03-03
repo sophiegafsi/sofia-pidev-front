@@ -12,6 +12,10 @@ export interface SkillProof {
   title: string;
   type: ProofType;
   fileUrl: string;
+  /**
+   * Expiration date (ISO date-only format: YYYY-MM-DD).
+   */
+  expiresAt?: string;
   skillId?: number;
   skill?: { id?: number; name?: string } | null;
 }

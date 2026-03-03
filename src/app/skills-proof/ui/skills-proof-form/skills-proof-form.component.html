@@ -1,31 +1,35 @@
 <div class="page">
   <div class="panel">
     <div class="header">
-      <h2>Ajouter Skills Proof</h2>
+      <h2>{{ proofId ? 'Modifier Skills Proof' : 'Ajouter Skills Proof' }}</h2>
       <button class="btn ghost" (click)="back()">Retour</button>
     </div>
 
     <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
-      <div class="row" *ngIf="selectedSkillId; else manualSkillId">
-        <label>Skill liee</label>
+      <div class="row" *ngIf="skillLocked && selectedSkillId; else editableSkill">
+        <label>Skill liée</label>
         <input [value]="'Skill #' + selectedSkillId + (selectedSkillName ? ' - ' + selectedSkillName : '')" disabled />
       </div>
 
-      <ng-template #manualSkillId>
+      <ng-template #editableSkill>
         <div class="row">
           <label>Skill ID</label>
           <input type="number" min="1" formControlName="skillId" placeholder="ex: 15" />
-          <small *ngIf="form.get('skillId')?.touched && form.get('skillId')?.invalid">
-            Skill ID obligatoire.
-          </small>
+          <small class="hint" *ngIf="selectedSkillId && selectedSkillName">Skill sélectionnée: {{ selectedSkillName }}</small>
+          <small class="hint error-text" *ngIf="hasError('skillId','required')">Skill ID obligatoire.</small>
+          <small class="hint error-text" *ngIf="hasError('skillId','positiveInt')">Skill ID doit etre un entier > 0.</small>
         </div>
       </ng-template>
 
       <div class="row">
         <label>Titre</label>
         <input formControlName="title" placeholder="ex: Oracle Certificate" />
+        <small class="hint error-text" *ngIf="hasError('title','required')">Titre obligatoire.</small>
+        <small class="hint error-text" *ngIf="hasError('title','trimmedMinLength')">Titre trop court (min 2 caracteres).</small>
+        <small class="hint error-text" *ngIf="hasError('title','lettersOnly')">Titre invalide (lettres uniquement, pas de chiffres).</small>
+        <small class="hint error-text" *ngIf="hasError('title','maxlength')">Titre trop long.</small>
       </div>
 
       <div class="row">
@@ -33,16 +37,37 @@
         <select formControlName="type">
           <option *ngFor="let t of proofTypes" [value]="t">{{ t }}</option>
         </select>
+        <small class="hint error-text" *ngIf="hasError('type','required')">Type obligatoire.</small>
+        <small class="hint error-text" *ngIf="hasError('type','oneOf')">Type invalide.</small>
       </div>
 
       <div class="row">
-        <label>URL du fichier</label>
-        <input formControlName="fileUrl" placeholder="https://..." />
+        <label>Date d'expiration (optionnel)</label>
+        <input type="date" formControlName="expiresAt" />
+        <small class="hint error-text" *ngIf="hasError('expiresAt','isoDate')">Format invalide (YYYY-MM-DD).</small>
+      </div>
+
+      <div class="row">
+        <label>Preuve (photo)</label>
+        <div class="upload">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+          <button class="btn ghost" type="button" (click)="clearImage()" [disabled]="saving || (!selectedFile && !imagePreviewUrl)">
+            Effacer
+          </button>
+        </div>
+
+        <div class="preview" *ngIf="imagePreviewUrl">
+          <img [src]="imagePreviewUrl" alt="Aperçu proof" />
+        </div>
+
+        <small class="hint error-text" *ngIf="hasError('proofFile','required')">Photo obligatoire.</small>
+        <small class="hint error-text" *ngIf="hasError('proofFile','imageFile')">Fichier invalide (image uniquement).</small>
+        <small class="hint error-text" *ngIf="hasError('proofFile','imageTooLarge')">Image trop grande (max 2MB).</small>
       </div>
 
       <div class="actions">
-        <button class="btn primary" type="submit" [disabled]="saving || form.invalid">
-          {{ saving ? 'Enregistrement...' : 'Creer Proof' }}
+        <button class="btn primary" type="submit" [disabled]="saving">
+          {{ saving ? 'Enregistrement...' : (proofId ? 'Mettre à jour' : 'Créer Proof') }}
         </button>
       </div>
     </form>

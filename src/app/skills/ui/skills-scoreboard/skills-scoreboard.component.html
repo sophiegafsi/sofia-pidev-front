@@ -1,0 +1,17 @@
+<div class="page">
+  <div class="header">
+    <h2>🏆 Top Skills Scoreboard</h2>
+    <button class="btn ghost" (click)="back()">Retour</button>
+  </div>
+
+  <div *ngIf="loading">Chargement...</div>
+  <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="grid" *ngIf="!loading">
+    <div class="card" *ngFor="let s of scores; let i = index">
+      <div class="rank">#{{ i + 1 }}</div>
+      <div class="name">{{ s.name }}</div>
+      <div class="score">Score: {{ s.score }}</div>
+    </div>
+  </div>
+</div>

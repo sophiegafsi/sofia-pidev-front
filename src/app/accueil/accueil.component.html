@@ -1,13 +1,15 @@
   <!-- NAVBAR -->
   <header class="navbar">
     <div class="container nav-inner">
-      <a class="brand" href="#">
+      <a class="brand" routerLink="/">
         <span class="logo" aria-hidden="true"></span>
         <span>FreeLink</span>
       </a>
 
       <nav class="nav-links" aria-label="Navigation">
-        <a href="#">Home</a>
+        <a routerLink="/">Home</a>
+        <a routerLink="/skills">Skills</a>
+        <a routerLink="/skills-proof">Proofs</a>
         <a href="#offers">Browse Jobs</a>
         <a href="#applications">Applications</a>
         <a href="#how">How it works</a>
@@ -15,8 +17,8 @@
       </nav>
 
       <div class="nav-actions">
-        <a href="#" class="btn ghost">Sign in</a>
-        <a href="#" class="btn primary">Post a Job</a>
+        <a routerLink="/skills" class="btn primary">Skills</a>
+        <a routerLink="/skills-proof" class="btn ghost">Proofs</a>
       </div>
     </div>
   </header>
@@ -31,6 +33,7 @@
         <div class="hero-cta">
           <a href="#offers" class="btn primary">Browse Jobs</a>
           <a href="#applications" class="btn orange">Apply Now</a>
+          <a routerLink="/skills" class="btn ghost-dark">Gérer Skills</a>
         </div>
 
         <div class="hero-stats">

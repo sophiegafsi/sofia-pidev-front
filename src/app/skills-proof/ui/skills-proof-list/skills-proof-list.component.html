@@ -13,8 +13,26 @@
 
     <div class="right">
       <div class="search">
-        <input [(ngModel)]="q" placeholder="Rechercher proof..." />
+        <input [(ngModel)]="q" (ngModelChange)="onQueryChange($event)" placeholder="Rechercher proof..." />
         <span class="pill">{{ filtered().length }} proofs</span>
+      </div>
+
+      <div class="sort">
+        <label>Trier</label>
+        <select [(ngModel)]="sortKey" (ngModelChange)="onSortChange()">
+          <option value="id">ID</option>
+          <option value="title">Titre</option>
+          <option value="type">Type</option>
+        </select>
+        <button class="btn ghost small" type="button" (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()">
+          {{ sortDir === 'asc' ? '↑' : '↓' }}
+        </button>
+      </div>
+
+      <div class="pager">
+        <button class="btn ghost small" type="button" (click)="prev()" [disabled]="page === 0">←</button>
+        <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+        <button class="btn ghost small" type="button" (click)="next()" [disabled]="page + 1 >= totalPages">→</button>
       </div>
     </div>
   </div>
@@ -24,13 +42,20 @@
     <div class="state" *ngIf="loading">Chargement...</div>
 
     <div class="grid" *ngIf="!loading">
-      <div class="card" *ngFor="let p of filtered()">
+      <div class="card" *ngFor="let p of paged(); let i = index">
         <div class="top">
           <div class="title">{{ p.title || '-' }}</div>
-          <div class="badge">{{ p.type || 'OTHER' }}</div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div class="badge">{{ p.type || 'OTHER' }}</div>
+            <div class="badge" [ngStyle]="expirationBadgeStyle(p)">{{ expirationBadgeLabel(p) }}</div>
+          </div>
         </div>
 
         <div class="meta">
+          <div class="metaBox">
+            <div class="label">N°</div>
+            <div class="value">{{ (page * size) + i + 1 }}</div>
+          </div>
           <div class="metaBox">
             <div class="label">Proof ID</div>
             <div class="value">{{ p.id || '-' }}</div>
@@ -45,7 +70,12 @@
           Ouvrir preuve
         </a>
 
+        <div class="thumb" *ngIf="isImage(p.fileUrl)">
+          <img [src]="p.fileUrl" alt="Proof photo" />
+        </div>
+
         <div class="actions">
+          <button class="btn ghost" (click)="goEdit(p.id)">Modifier</button>
           <button class="btn danger" (click)="remove(p.id)">Supprimer</button>
         </div>
       </div>

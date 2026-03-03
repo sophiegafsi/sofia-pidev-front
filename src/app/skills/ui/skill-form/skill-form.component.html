@@ -6,11 +6,18 @@
     </div>
 
     <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="error" *ngIf="errorMessage">
+  {{ errorMessage }}
+</div>
 
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
       <div class="row">
         <label>Nom</label>
         <input formControlName="name" placeholder="ex: Java, Angular..." />
+        <small class="hint error-text" *ngIf="hasError('name','required')">Nom obligatoire.</small>
+        <small class="hint error-text" *ngIf="hasError('name','trimmedMinLength')">Nom trop court (min 2 caractères).</small>
+        <small class="hint error-text" *ngIf="hasError('name','containsLetter')">Nom invalide (doit contenir au moins une lettre).</small>
+        <small class="hint error-text" *ngIf="hasError('name','maxlength')">Nom trop long.</small>
       </div>
 
       <div class="row">
@@ -18,20 +25,28 @@
         <select formControlName="level">
           <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
         </select>
+        <small class="hint error-text" *ngIf="hasError('level','required')">Niveau obligatoire.</small>
       </div>
 
       <div class="row">
         <label>Années d'expérience</label>
-        <input type="number" formControlName="yearsOfExperience" />
+        <input type="number" min="0" step="1" formControlName="yearsOfExperience" />
+        <small class="hint error-text" *ngIf="hasError('yearsOfExperience','required')">Années d'expérience obligatoire.</small>
+        <small class="hint error-text" *ngIf="hasError('yearsOfExperience','int')">Valeur invalide (entier uniquement).</small>
+        <small class="hint error-text" *ngIf="hasError('yearsOfExperience','min')">La valeur ne peut pas être négative.</small>
+        <small class="hint error-text" *ngIf="hasError('yearsOfExperience','max')">Valeur trop grande.</small>
       </div>
 
       <div class="row">
         <label>Description</label>
         <textarea rows="4" formControlName="description"></textarea>
+        <small class="hint error-text" *ngIf="hasError('description','required')">Description obligatoire.</small>
+        <small class="hint error-text" *ngIf="hasError('description','trimmedMinLength')">Description trop courte (min 5 caractères).</small>
+        <small class="hint error-text" *ngIf="hasError('description','maxlength')">Description trop longue.</small>
       </div>
 
       <div class="actions">
-        <button class="btn primary" type="submit" [disabled]="saving || form.invalid">
+        <button class="btn primary" type="submit" [disabled]="saving">
           {{ saving ? 'Enregistrement...' : (id ? 'Mettre à jour' : 'Créer') }}
         </button>
       </div>

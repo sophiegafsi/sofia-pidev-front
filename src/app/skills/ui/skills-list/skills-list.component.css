@@ -29,6 +29,32 @@
   gap: 10px;
 }
 
+.sort{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  color:#fff;
+}
+.sort label{font-weight:800;opacity:.95}
+.sort select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:none;
+  outline:none;
+  background:rgba(255,255,255,0.92);
+  font-weight:800;
+}
+.btn.small{padding:8px 10px;border-radius:12px}
+
+.pager{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#fff;
+  font-weight:800;
+  opacity:.95;
+}
+
 .search {
   display: flex;
   gap: 10px;
@@ -84,7 +110,7 @@
 }
 
 .meta { margin-top: 10px; }
-.meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .metaBox { background: #eef5ff; padding: 10px; border-radius: 12px; }
 .label { font-size: 12px; opacity: .7; }
 .value { font-weight: 800; color: #0b2a52; }

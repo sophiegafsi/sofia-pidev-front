@@ -16,6 +16,14 @@ export class SkillsListComponent implements OnInit {
   q = '';
   errorMessage = '';
 
+  page = 0;
+  size = 3;
+  totalPages = 1;
+  totalElements = 0;
+
+  sortField: 'id' | 'name' | 'level' | 'yearsOfExperience' = 'id';
+  sortDir: 'asc' | 'desc' = 'asc';
+
   constructor(
     private skillsService: SkillsService,
     private skillsProofService: SkillsProofService,
@@ -26,30 +34,56 @@ export class SkillsListComponent implements OnInit {
     this.load();
   }
 
+  onQueryChange(value: string): void {
+    this.q = value ?? '';
+    this.page = 0;
+    this.load();
+  }
+
+  onSortChange(): void {
+    this.page = 0;
+    this.load();
+  }
+
   load(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.skillsService.getAll().subscribe({
-      next: (data) => {
-        this.skills = (data || []).sort((a, b) => (b.id || 0) - (a.id || 0));
+
+    this.skillsService.search(this.q, this.page, this.size, this.sortField, this.sortDir).subscribe({
+      next: (res) => {
+        this.skills = res.content || [];
+        this.totalPages = Math.max(1, Number(res.totalPages || 1));
+        this.totalElements = Number(res.totalElements ?? this.skills.length) || 0;
         this.loading = false;
       },
       error: (err) => {
         console.error(err);
         const status = err?.status ? ` (HTTP ${err.status})` : '';
         this.errorMessage = `Impossible de charger les skills${status}. Verifiez que l'API backend tourne sur le port 8086.`;
+        this.skills = [];
+        this.totalPages = 1;
+        this.totalElements = 0;
         this.loading = false;
       },
     });
   }
 
   filtered(): Skill[] {
-    const x = this.q.trim().toLowerCase();
-    if (!x) return this.skills;
-    return this.skills.filter(s =>
-      (s.name || '').toLowerCase().includes(x) ||
-      (s.level || '').toLowerCase().includes(x)
-    );
+    return this.skills;
+  }
+
+  prev(): void {
+    if (this.page > 0) {
+      this.page--;
+      this.load();
+    }
+  }
+
+  next(): void {
+    if (this.page + 1 < this.totalPages) {
+      this.page++;
+      this.load();
+    }
   }
 
   goNew(): void {
