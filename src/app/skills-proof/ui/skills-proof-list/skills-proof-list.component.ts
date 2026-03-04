@@ -86,7 +86,7 @@ export class SkillsProofListComponent implements OnInit {
             map((rows) => this.applyClientFilterAndSort(rows || [])),
             catchError((err: unknown) => {
               console.error(err);
-              this.errorMessage = "Impossible de charger les proofs. Verifiez l'API backend.";
+              this.errorMessage = 'Unable to load proofs. Check the backend API.';
               return of([] as SkillProof[]);
             })
           );
@@ -124,7 +124,7 @@ export class SkillsProofListComponent implements OnInit {
 
   skillLabel(p: SkillProof): string {
     const id = p.skillId ?? p.skill?.id;
-    if (!id) return 'Skill inconnue';
+    if (!id) return 'Unknown skill';
     const skill = this.skillsById.get(id);
     return skill ? `Skill #${id} - ${skill.name}` : `Skill #${id}`;
   }
@@ -210,13 +210,13 @@ export class SkillsProofListComponent implements OnInit {
 
   remove(id?: number): void {
     if (!id) return;
-    if (!confirm('Supprimer ce proof ?')) return;
+    if (!confirm('Delete this proof?')) return;
 
     this.proofsService.delete(id).subscribe({
       next: () => this.reload(),
       error: (err: unknown) => {
         console.error(err);
-        this.errorMessage = "Suppression echouee. Verifiez l'API backend.";
+        this.errorMessage = 'Delete failed. Check the backend API.';
       },
     });
   }

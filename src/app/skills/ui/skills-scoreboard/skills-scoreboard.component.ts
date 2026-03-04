@@ -31,7 +31,7 @@ export class SkillsScoreboardComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage = "Impossible de charger le classement.";
+        this.errorMessage = 'Unable to load the scoreboard.';
         this.loading = false;
       }
     });

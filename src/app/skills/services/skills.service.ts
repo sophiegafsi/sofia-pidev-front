@@ -70,6 +70,19 @@ export class SkillsService {
     ]);
   }
 
+  getBadge(id: number): Observable<Skill['badge']> {
+    return this.trySequential<Skill['badge']>([
+      () =>
+        this.http
+          .get(`${this.baseUrl}/${id}/badge`, { responseType: 'text' })
+          .pipe(map((res) => this.normalizeBadge(res))),
+      () =>
+        this.http
+          .get<unknown>(`${this.baseUrl}/${id}/badge`)
+          .pipe(map((res) => this.normalizeBadge(res))),
+    ]);
+  }
+
   create(skill: Skill): Observable<Skill> {
     return this.trySequential<Skill>([
       () => this.http.post<Skill>(`${this.baseUrl}/add`, skill),
@@ -149,6 +162,7 @@ export class SkillsService {
         level: String(s['level'] ?? 'BEGINNER') as Skill['level'],
         yearsOfExperience: this.asNumber(s['yearsOfExperience'] ?? s['years_of_experience']) ?? 0,
         description: String(s['description'] ?? ''),
+        badge: this.normalizeBadge(s['badge']),
       };
     });
   }
@@ -194,5 +208,31 @@ export class SkillsService {
       return Number(value);
     }
     return undefined;
+  }
+
+  downloadSkillPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/pdf`, {
+      responseType: 'blob',
+      headers: { Accept: 'application/pdf' },
+    });
+  }
+  private normalizeBadge(value: unknown): Skill['badge'] {
+    if (value === null || value === undefined) return undefined;
+
+    let raw = String(value).trim();
+    if (!raw) return undefined;
+
+    // Handles both text/plain and application/json (quoted string).
+    if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+      try {
+        raw = String(JSON.parse(raw));
+      } catch {
+        raw = raw.slice(1, -1);
+      }
+      raw = raw.trim();
+    }
+
+    const allowed = new Set(['BEGINNER', 'ADVANCED', 'EXPERT', 'CERTIFIED_EXPERT']);
+    return allowed.has(raw) ? (raw as Skill['badge']) : undefined;
   }
 }

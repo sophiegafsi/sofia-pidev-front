@@ -2,26 +2,26 @@
   <div class="hero">
     <div class="left">
       <div class="brand">FreeLink</div>
-      <h1>Gestion Skills Proof</h1>
-      <p *ngIf="skillIdFilter">Liste des proofs liees a la skill #{{ skillIdFilter }}.</p>
-      <p *ngIf="!skillIdFilter">Liste complete des proofs deja ajoutees.</p>
+      <h1>Skills Proofs</h1>
+      <p *ngIf="skillIdFilter">List of proofs linked to skill #{{ skillIdFilter }}.</p>
+      <p *ngIf="!skillIdFilter">Full list of all added proofs.</p>
       <div class="actionRow">
-        <button class="btn primary" (click)="goNew()">+ Ajouter un proof</button>
-        <button class="btn ghost" (click)="goSkills()">Retour skills</button>
+        <button class="btn primary" (click)="goNew()">+ Add a proof</button>
+        <button class="btn ghost" (click)="goSkills()">Back to skills</button>
       </div>
     </div>
 
     <div class="right">
       <div class="search">
-        <input [(ngModel)]="q" (ngModelChange)="onQueryChange($event)" placeholder="Rechercher proof..." />
+        <input [(ngModel)]="q" (ngModelChange)="onQueryChange($event)" placeholder="Search proofs..." />
         <span class="pill">{{ filtered().length }} proofs</span>
       </div>
 
       <div class="sort">
-        <label>Trier</label>
+        <label>Sort</label>
         <select [(ngModel)]="sortKey" (ngModelChange)="onSortChange()">
           <option value="id">ID</option>
-          <option value="title">Titre</option>
+          <option value="title">Title</option>
           <option value="type">Type</option>
         </select>
         <button class="btn ghost small" type="button" (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()">
@@ -39,7 +39,7 @@
 
   <div class="content">
     <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
-    <div class="state" *ngIf="loading">Chargement...</div>
+    <div class="state" *ngIf="loading">Loading...</div>
 
     <div class="grid" *ngIf="!loading">
       <div class="card" *ngFor="let p of paged(); let i = index">
@@ -53,7 +53,7 @@
 
         <div class="meta">
           <div class="metaBox">
-            <div class="label">N°</div>
+            <div class="label">No.</div>
             <div class="value">{{ (page * size) + i + 1 }}</div>
           </div>
           <div class="metaBox">
@@ -61,13 +61,13 @@
             <div class="value">{{ p.id || '-' }}</div>
           </div>
           <div class="metaBox">
-            <div class="label">Skill liee</div>
+            <div class="label">Linked skill</div>
             <div class="value">{{ skillLabel(p) }}</div>
           </div>
         </div>
 
         <a *ngIf="p.fileUrl" [href]="p.fileUrl" target="_blank" rel="noopener noreferrer" class="url">
-          Ouvrir preuve
+          Open proof
         </a>
 
         <div class="thumb" *ngIf="isImage(p.fileUrl)">
@@ -75,14 +75,14 @@
         </div>
 
         <div class="actions">
-          <button class="btn ghost" (click)="goEdit(p.id)">Modifier</button>
-          <button class="btn danger" (click)="remove(p.id)">Supprimer</button>
+          <button class="btn ghost" (click)="goEdit(p.id)">Edit</button>
+          <button class="btn danger" (click)="remove(p.id)">Delete</button>
         </div>
       </div>
     </div>
 
     <div class="empty" *ngIf="!loading && filtered().length === 0">
-      Aucune preuve trouvee.
+      No proofs found.
     </div>
   </div>
 </div>

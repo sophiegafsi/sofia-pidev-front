@@ -1,135 +1,97 @@
-.page {
-  padding: 30px;
-}
+:host,:host *{box-sizing:border-box}
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.grid {
-  margin-top: 20px;
-  display: grid;
-  gap: 15px;
-}
-
-.card {
-  padding: 20px;
-  border-radius: 12px;
-  background: #f5f7fa;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 500;
-}
-
-.rank {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.score {
-  color: #007bff;
-  font-weight: bold;
-}
 :host{
   display:block;
   min-height:100vh;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:linear-gradient(180deg,#0b4aa1 0%,#0a3f8f 100%);
+  background:linear-gradient(180deg,var(--fl-bg1) 0%,var(--fl-bg0) 100%);
   padding:48px 20px;
-  color:#fff;
+  color:var(--fl-text);
 }
 
-*{box-sizing:border-box}
-
-/* Layout container (works even if HTML doesn't have these classes) */
-.page,.container{
+.page{
   width:min(1120px,100%);
   margin:0 auto;
 }
 
-/* Header / hero */
-.hero,.header,.topbar{
-  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.06));
-  border:1px solid rgba(255,255,255,.22);
+.header{
+  position:relative;
+  background:linear-gradient(135deg,rgba(56,140,214,.55),rgba(43,103,165,.55));
+  border:1px solid var(--fl-border2);
   border-radius:18px;
   padding:22px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:14px;
-}
-
-h1,h2{
-  margin:0;
-  font-weight:900;
-  letter-spacing:-.02em;
   color:#fff;
+  overflow:hidden;
+  box-shadow:var(--fl-shadow);
 }
+.header::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  background:
+    radial-gradient(circle at 20% 40%, rgba(255,255,255,.16) 0 2px, transparent 3px),
+    radial-gradient(circle at 60% 30%, rgba(255,255,255,.14) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 65%, rgba(255,255,255,.12) 0 2px, transparent 3px);
+  background-size:120px 120px;
+  opacity:.55;
+  pointer-events:none;
+}
+.header h2{position:relative;z-index:1;margin:0;font-weight:900;letter-spacing:-.02em}
+.header button{position:relative;z-index:1}
 
-h1{font-size:clamp(28px,3.2vw,42px)}
-h2{font-size:clamp(24px,3vw,36px)}
-
-/* Buttons (Retour) */
-button,.btn{
+.btn{
   padding:10px 14px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(255,255,255,.10);
+  border:1px solid var(--fl-border2);
+  background:transparent;
   color:#fff;
   font-weight:900;
   cursor:pointer;
 }
-button:hover,.btn:hover{filter:brightness(1.05)}
+.btn:hover{filter:brightness(1.03)}
 
-/* List / cards */
-ul{
-  list-style:none;
-  padding:0;
-  margin:18px 0 0;
+.grid{
+  margin-top:18px;
   display:grid;
   gap:14px;
 }
 
-li,.row,.item,.card{
-  background:rgba(255,255,255,.92);
-  color:#0b2a52;
+.card{
+  background:var(--fl-surface);
+  border:1px solid var(--fl-border);
   border-radius:18px;
   padding:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.15);
-}
-
-/* If the row is a flex line (like your screenshot) */
-li,.row,.item{
+  box-shadow:0 10px 30px rgba(0,0,0,.22);
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:14px;
 }
 
-/* Left rank */
-.rank,.pos,.index{
+.rank{
   font-weight:900;
   font-size:18px;
   min-width:64px;
+  color:#fff;
 }
 
-/* Middle name */
-.name,.title,.skill{
+.name{
   flex:1 1 auto;
   text-align:center;
   font-weight:900;
   font-size:18px;
+  color:#fff;
 }
 
-/* Right score pill */
-.score,.points{
+.score{
   font-weight:900;
-  color:#0b4aa1;
-  background:#eef5ff;
-  border:1px solid #cfe3ff;
+  color:#0b1b2a;
+  background:rgba(242,153,74,.92);
+  border:1px solid rgba(242,153,74,.45);
   padding:10px 12px;
   border-radius:999px;
   white-space:nowrap;
@@ -137,6 +99,6 @@ li,.row,.item{
 
 @media (max-width:650px){
   :host{padding:28px 14px}
-  li,.row,.item{flex-direction:column;align-items:flex-start}
-  .name,.title,.skill{text-align:left}
+  .card{flex-direction:column;align-items:flex-start}
+  .name{text-align:left}
 }

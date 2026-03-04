@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { SkillsService } from '../../../skills/services/skills.service';
 import { Skill } from '../../../skills/models/skill.model';
 import { PROOF_TYPE_OPTIONS, SkillProof } from '../../models/skill-proof.model';
@@ -56,8 +57,8 @@ export class ProofFormComponent implements OnInit {
     const editId = this.parsePositiveInt(this.route.snapshot.paramMap.get('id'));
     if (editId) {
       this.proofId = editId;
+      this.skillLocked = true;
       this.loadForEdit(editId);
-      this.bindSkillPreview();
       return;
     }
 
@@ -66,7 +67,7 @@ export class ProofFormComponent implements OnInit {
     if (skillIdParam) {
       const parsed = this.parsePositiveInt(skillIdParam);
       if (!parsed) {
-        this.errorMessage = "Parametre 'skillId' invalide dans l'URL.";
+        this.errorMessage = "Invalid 'skillId' parameter in the URL.";
         return;
       }
 
@@ -88,7 +89,7 @@ export class ProofFormComponent implements OnInit {
     this.errorMessage = '';
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      window.alert('Veuillez remplir tous les champs correctement avant de valider.');
+      window.alert('Please fill in all fields correctly before submitting.');
       return;
     }
 
@@ -97,14 +98,14 @@ export class ProofFormComponent implements OnInit {
     const skillId = this.parsePositiveInt(this.form.getRawValue().skillId);
     if (!skillId) {
       this.saving = false;
-      this.errorMessage = 'Skill ID invalide (doit etre un entier > 0).';
+      this.errorMessage = 'Invalid Skill ID (must be an integer > 0).';
       return;
     }
 
     if (!this.proofId && !this.selectedFile) {
       this.saving = false;
-      this.errorMessage = 'Photo obligatoire.';
-      window.alert('Veuillez choisir une photo de preuve.');
+      this.errorMessage = 'Photo is required.';
+      window.alert('Please choose a proof photo.');
       return;
     }
 
@@ -117,22 +118,39 @@ export class ProofFormComponent implements OnInit {
       skillId,
     };
 
-    const req = this.proofId
-      ? this.proofsService.update(proof)
-      : this.proofsService.uploadForSkill(skillId, proof.title, proof.type, this.selectedFile as File, proof.expiresAt);
+    const doSave = () => {
+      const req = this.proofId
+        ? this.proofsService.update(proof)
+        : this.proofsService.uploadForSkill(skillId, proof.title, proof.type, this.selectedFile as File, proof.expiresAt);
 
-    req.subscribe({
-      next: () => {
-        this.saving = false;
-        this.router.navigate(['/skills-proof/skill', skillId]);
-      },
-      error: (err) => {
-        console.error(err);
-        const action = this.proofId ? 'Mise a jour' : 'Ajout';
-        this.errorMessage = `${action} proof echoue (HTTP ${err?.status ?? '??'}).`;
-        this.saving = false;
-      },
-    });
+      req
+        .pipe(finalize(() => (this.saving = false)))
+        .subscribe({
+          next: () => this.router.navigate(['/skills-proof/skill', skillId]),
+          error: (err) => {
+            console.error(err);
+            const action = this.proofId ? 'Update' : 'Create';
+            this.errorMessage = `${action} proof failed (HTTP ${err?.status ?? '??'}).`;
+          },
+        });
+    };
+
+    // Create mode: refuse to add a proof if the skill doesn't exist.
+    if (!this.proofId) {
+      this.skillsService.getById(skillId).subscribe({
+        next: () => doSave(),
+        error: (err) => {
+          console.error(err);
+          this.saving = false;
+          this.errorMessage = `Skill #${skillId} not found. Create the skill before adding a proof.`;
+          window.alert(this.errorMessage);
+        },
+      });
+      return;
+    }
+
+    // Edit mode: skillId comes from the existing proof and is locked.
+    doSave();
   }
 
   back(): void {
@@ -205,6 +223,8 @@ export class ProofFormComponent implements OnInit {
         if (skillId) {
           this.selectedSkillId = skillId;
           this.form.patchValue({ skillId });
+          this.skillLocked = true;
+          this.form.get('skillId')?.disable({ emitEvent: false });
 
           this.skillsService.getById(skillId).subscribe({
             next: (s: Skill) => (this.selectedSkillName = s?.name || ''),
@@ -232,7 +252,7 @@ export class ProofFormComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.saving = false;
-        this.errorMessage = `Impossible de charger le proof (HTTP ${err?.status ?? '??'}).`;
+        this.errorMessage = `Unable to load the proof (HTTP ${err?.status ?? '??'}).`;
       },
     });
   }

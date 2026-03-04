@@ -2,40 +2,32 @@
   <div class="hero">
     <div class="left">
       <div class="brand">FreeLink</div>
-      <h1>Gestion des Skills</h1>
-      <p>Ajoutez, modifiez et organisez les competences.</p>
+      <h1>Skills Management</h1>
+      <p>Add, edit, and organize skills.</p>
 
       <div class="actionsTop">
-        <button class="btn primary" (click)="goNew()">+ Ajouter une skill</button>
-        <button class="btn ghost" (click)="goProofs()">Voir tous les proofs</button>
+        <button class="btn primary" (click)="goNew()">+ Add a skill</button>
+        <button class="btn ghost" (click)="goProofs()">View all proofs</button>
         <button class="btn ghost" routerLink="/skills/scoreboard">🏆 Scoreboard</button>
       </div>
     </div>
 
     <div class="right">
       <div class="search">
-        <input
-          [(ngModel)]="q"
-          (ngModelChange)="onQueryChange($event)"
-          placeholder="Rechercher (nom, niveau)..."
-        />
+        <input [(ngModel)]="q" (ngModelChange)="onQueryChange($event)" placeholder="Search (name, level)..." />
         <span class="pill">{{ totalElements }} skills</span>
       </div>
 
       <div class="sort">
-        <label>Trier</label>
+        <label>Sort</label>
         <select [(ngModel)]="sortField" (ngModelChange)="onSortChange()">
           <option value="id">ID</option>
-          <option value="name">Nom</option>
-          <option value="level">Niveau</option>
-          <option value="yearsOfExperience">Années</option>
+          <option value="name">Name</option>
+          <option value="level">Level</option>
+          <option value="yearsOfExperience">Years</option>
         </select>
 
-        <button
-          class="btn ghost small"
-          type="button"
-          (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()"
-        >
+        <button class="btn ghost small" type="button" (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()">
           {{ sortDir === 'asc' ? '↑' : '↓' }}
         </button>
       </div>
@@ -50,19 +42,21 @@
 
   <div class="content">
     <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
-    <div class="state" *ngIf="loading">Chargement...</div>
+    <div class="state" *ngIf="loading">Loading...</div>
 
     <div class="grid" *ngIf="!loading">
       <div class="card" *ngFor="let s of skills; let i = index">
         <div class="top">
           <div class="title">{{ s.name }}</div>
-          <div class="badge">{{ s.level }}</div>
+          <div class="badges" *ngIf="s.badge as b">
+            <div class="badge badgeEmoji" [ngStyle]="badgeStyle(b)" [title]="b">{{ badgeEmoji(b) }}</div>
+          </div>
         </div>
 
         <div class="meta">
           <div class="metaBox">
-            <div class="label">N° (page)</div>
-            <div class="value">{{ (page * size) + (i + 1) }}</div>
+            <div class="label">No. (page)</div>
+            <div class="value">{{ page * size + (i + 1) }}</div>
           </div>
 
           <div class="metaBox">
@@ -71,24 +65,23 @@
           </div>
 
           <div class="metaBox">
-            <div class="label">Annees</div>
+            <div class="label">Years</div>
             <div class="value">{{ s.yearsOfExperience ?? 0 }}</div>
           </div>
         </div>
 
-        <div class="desc">{{ s.description || 'Aucune description' }}</div>
+        <div class="desc">{{ s.description || 'No description' }}</div>
 
         <div class="actions">
-          <button class="btn ghost" (click)="goEdit(s.id)">Modifier</button>
-          <button class="btn ghost" (click)="goProofs(s.id)">Voir proofs</button>
-          <button class="btn ghost" (click)="goAddProof(s.id)">Ajouter proof</button>
-          <button class="btn danger" (click)="remove(s.id)">Supprimer</button>
+          <button class="btn ghost" (click)="goEdit(s.id)">Edit</button>
+          <button class="btn ghost" (click)="goProofs(s.id)">View proofs</button>
+          <button class="btn ghost" type="button" (click)="downloadPdf(s.id)" [disabled]="!s.id">📄 PDF</button>
+          <button class="btn ghost" (click)="goAddProof(s.id)">Add proof</button>
+          <button class="btn danger" (click)="remove(s.id)">Delete</button>
         </div>
       </div>
     </div>
 
-    <div class="empty" *ngIf="!loading && skills.length === 0">
-      Aucune skill trouvee.
-    </div>
+    <div class="empty" *ngIf="!loading && skills.length === 0">No skills found.</div>
   </div>
 </div>

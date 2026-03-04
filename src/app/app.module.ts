@@ -8,7 +8,7 @@ import { AccueilComponent } from './accueil/accueil.component';
 import { ProfileJobComponent } from './profile-job/profile-job.component';
 import { ProfileFreelancerComponent } from './profile-freelancer/profile-freelancer.component';
 
-// ✅ si tu as SkillsModule et SkillsProofModule (ce que tu as créé)
+// ✅ if you have SkillsModule and SkillsProofModule (what you created)
 import { SkillsModule } from './skills/skills.module';
 import { SkillsProofModule } from './skills-proof/skills-proof.module';
 

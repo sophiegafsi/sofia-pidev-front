@@ -1,10 +1,10 @@
 <div class="page">
   <div class="header">
     <h2>🏆 Top Skills Scoreboard</h2>
-    <button class="btn ghost" (click)="back()">Retour</button>
+    <button class="btn ghost" (click)="back()">Back</button>
   </div>
 
-  <div *ngIf="loading">Chargement...</div>
+  <div *ngIf="loading">Loading...</div>
   <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <div class="grid" *ngIf="!loading">

@@ -67,8 +67,8 @@ export class SkillFormComponent implements OnInit {
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Veuillez remplir tous les champs correctement.';
-      window.alert('Veuillez remplir tous les champs correctement avant de créer.');
+      this.errorMessage = 'Please fill in all fields correctly.';
+      window.alert('Please fill in all fields correctly before saving.');
       return;
     }
 
@@ -95,7 +95,7 @@ export class SkillFormComponent implements OnInit {
         });
 
         if (exists) {
-          this.errorMessage = 'Ce nom de skill existe déjà. Choisissez un autre nom.';
+          this.errorMessage = 'This skill name already exists. Choose another name.';
           this.saving = false;
           return;
         }
@@ -161,13 +161,13 @@ export class SkillFormComponent implements OnInit {
 
     const joined = candidates.join(' | ');
     if (/already\s+exist|already\s+exists|duplicate|constraint|unique|existe\s+d[ée]j[aà]/i.test(joined)) {
-      return 'Ce nom de skill existe déjà. Choisissez un autre nom.';
+      return 'This skill name already exists. Choose another name.';
     }
 
     const msg = candidates.find((x) => x.toLowerCase() !== 'internal server error');
     if (msg) return msg;
 
-    return typeof status === 'number' ? `Erreur serveur (HTTP ${status}).` : 'Erreur serveur.';
+    return typeof status === 'number' ? `Server error (HTTP ${status}).` : 'Server error.';
   }
 
   private static trimmedMinLengthValidator(min: number): ValidatorFn {
@@ -203,4 +203,3 @@ export class SkillFormComponent implements OnInit {
     };
   }
 }
-

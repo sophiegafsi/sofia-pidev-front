@@ -18,14 +18,14 @@ interface Project {
 export class ProfileFreelancerComponent {
   freelancer = {
     name: 'Thomas Dubois',
-    title: 'Développeur Web Full Stack',
+    title: 'Full Stack Web Developer',
     image: 'https://via.placeholder.com/200x200?text=Thomas+Dubois',
-    about: 'Fort de plus de 7 ans d\'expérience, Thomas Dubois a développé des applications SaaS pour des startups et des solutions pour de grandes entreprises. Il reconnaître le travail sur des projets avec des équipes et développement frontend, notamment avec React.js et Node.js.',
+    about: "With over 7 years of experience, Thomas Dubois has built SaaS applications for startups and solutions for large enterprises. He enjoys working on team projects and frontend development, notably with React.js and Node.js.",
     rate: 50,
     rateUnit: '/h',
     rating: 5,
     ratingCount: 1,
-    ratingText: 'Tout se passe bien et Thomas Dubois se rend disponible pour échanger et faire avancer le produit.'
+    ratingText: 'Everything is going well and Thomas Dubois is available to discuss and move the product forward.'
   };
 
   skills: Skill[] = [
@@ -37,18 +37,18 @@ export class ProfileFreelancerComponent {
 
   projects: Project[] = [
     {
-      title: 'Développeur Web Full Stack',
-      description: 'Développé des applications SaaS pour des startups et des solutions pour de grandes entreprises.',
+      title: 'Full Stack Web Developer',
+      description: 'Built SaaS applications for startups and solutions for large enterprises.',
       image: 'https://via.placeholder.com/300x200?text=Project+1'
     },
     {
-      title: 'Développeur Web Full Stack',
-      description: 'Développé des applications SaaS pour des startups et des solutions pour de grandes entreprises.',
+      title: 'Full Stack Web Developer',
+      description: 'Built SaaS applications for startups and solutions for large enterprises.',
       image: 'https://via.placeholder.com/300x200?text=Project+2'
     },
     {
-      title: 'Développeur Web Full Stack',
-      description: 'Développé des applications SaaS pour des startups et des solutions pour de grandes entreprises.',
+      title: 'Full Stack Web Developer',
+      description: 'Built SaaS applications for startups and solutions for large enterprises.',
       image: 'https://via.placeholder.com/300x200?text=Project+3'
     }
   ];

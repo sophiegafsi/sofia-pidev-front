@@ -62,7 +62,7 @@ export class SkillsProofService {
 
   update(proof: SkillProof): Observable<SkillProof> {
     if (!proof.id) {
-      return throwError(() => new Error('Proof ID manquant pour update().'));
+      return throwError(() => new Error('Missing Proof ID for update().'));
     }
 
     const payload: Record<string, unknown> = {
@@ -147,7 +147,7 @@ export class SkillsProofService {
     const body = res as Record<string, unknown> | null;
     if (body) return this.normalizeProof(body, forceSkillId);
 
-    throw new Error('Proof introuvable.');
+    throw new Error('Proof not found.');
   }
 
   private extractProofs(res: unknown, forceSkillId?: number): SkillProof[] {
