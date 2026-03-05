@@ -1,27 +1,55 @@
-# GestionSkills
+# GestionSkills (Frontend)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
+## Overview
+GestionSkills is an Angular frontend for managing professional skills (CRUD + search + badges/scoreboard). It is designed to work with a backend REST API (default: `http://localhost:8086/skills`).
 
-## Development server
+## Features
+- Create, update, delete skills
+- Search + pagination/sorting
+- Skill levels (BEGINNER → EXPERT) and years of experience
+- Badge display and scoreboard (when supported by the backend)
+- PDF download endpoint support (when supported by the backend)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Tech Stack
+- Angular 18
+- TypeScript
+- RxJS
+- (Optional) Node/Express SSR (`@angular/ssr`)
 
-## Code scaffolding
+## Architecture
+- `src/app/skills/models`: domain types (`Skill`, `SkillLevel`)
+- `src/app/skills/services`: API client (`SkillsService`) targeting `http://localhost:8086/skills`
+- `src/app/skills/ui`: pages/components (list, form, details, proofs…)
+- Routing: feature modules per domain area
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Getting Started
+### Prerequisites
+- Node.js (LTS recommended) + npm
+- A backend API running locally (or update the base URL in `src/app/skills/services/skills.service.ts`)
 
-## Build
+### Install
+```bash
+npm ci
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Run (dev)
+```bash
+npm start
+```
+Then open `http://localhost:4200`.
 
-## Running unit tests
+### Build
+```bash
+npm run build
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Configuration
+- Backend base URL: `src/app/skills/services/skills.service.ts` (`baseUrl`)
 
-## Running end-to-end tests
+## Contributors
+- Add your name(s) here (e.g., GitHub profiles, roles)
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Academic Context
+- Course/semester: (fill in)
+- Institution: (fill in)
+- Objectives: (fill in)

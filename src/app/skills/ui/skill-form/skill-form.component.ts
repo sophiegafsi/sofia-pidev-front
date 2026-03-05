@@ -150,7 +150,9 @@ export class SkillFormComponent implements OnInit {
 
     const candidates = [
       extract(e?.error),
+      extract(e?.error?.text), // HttpClient fallback when responseType is 'text'
       extract(e?.error?.message),
+      extract(e?.error?.error?.message), // Sometimes nested (e.g., parsing error wrappers)
       extract(e?.error?.error),
       extract(e?.error?.details),
       extract(e?.message),
@@ -162,6 +164,10 @@ export class SkillFormComponent implements OnInit {
     const joined = candidates.join(' | ');
     if (/already\s+exist|already\s+exists|duplicate|constraint|unique|existe\s+d[ée]j[aà]/i.test(joined)) {
       return 'This skill name already exists. Choose another name.';
+    }
+
+    if (/\buser_id\b/i.test(joined) && /default\s+value|cannot\s+be\s+null|not\s+null|must\s+not\s+be\s+null/i.test(joined)) {
+      return "Backend error: `user_id` is required. If you're testing without users, make `skills.user_id` nullable (or remove it) on the backend/database.";
     }
 
     const msg = candidates.find((x) => x.toLowerCase() !== 'internal server error');

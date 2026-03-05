@@ -86,7 +86,16 @@ export class SkillsService {
   create(skill: Skill): Observable<Skill> {
     return this.trySequential<Skill>([
       () => this.http.post<Skill>(`${this.baseUrl}/add`, skill),
+      // When backend returns text/plain errors, Angular throws a JSON parse error; this fallback preserves the raw text.
+      () =>
+        this.http
+          .post(`${this.baseUrl}/add`, skill, { responseType: 'text' })
+          .pipe(map((text) => this.parseSkillFromText(text))),
       () => this.http.post<Skill>(this.baseUrl, skill),
+      () =>
+        this.http
+          .post(this.baseUrl, skill, { responseType: 'text' })
+          .pipe(map((text) => this.parseSkillFromText(text))),
     ]);
   }
 
@@ -97,9 +106,18 @@ export class SkillsService {
     };
     const requests: Array<() => Observable<Skill>> = [
       () => this.http.put<Skill>(`${this.baseUrl}/update`, payload),
+      () =>
+        this.http
+          .put(`${this.baseUrl}/update`, payload, { responseType: 'text' })
+          .pipe(map((text) => this.parseSkillFromText(text))),
     ];
     if (skill.id) {
       requests.push(() => this.http.put<Skill>(`${this.baseUrl}/${skill.id}`, payload));
+      requests.push(() =>
+        this.http
+          .put(`${this.baseUrl}/${skill.id}`, payload, { responseType: 'text' })
+          .pipe(map((text) => this.parseSkillFromText(text)))
+      );
     }
     return this.trySequential<Skill>(requests);
   }
@@ -208,6 +226,26 @@ export class SkillsService {
       return Number(value);
     }
     return undefined;
+  }
+
+  private parseSkillFromText(text: string): Skill {
+    if (!text) throw new Error('Empty response from server.');
+
+    try {
+      const parsed = JSON.parse(text) as unknown;
+      const row = parsed as Record<string, unknown>;
+      return {
+        id: this.asNumber(row['id']),
+        name: String(row['name'] ?? ''),
+        level: String(row['level'] ?? 'BEGINNER') as Skill['level'],
+        yearsOfExperience: this.asNumber(row['yearsOfExperience'] ?? row['years_of_experience']) ?? 0,
+        description: String(row['description'] ?? ''),
+        badge: this.normalizeBadge(row['badge']),
+      };
+    } catch {
+      // If backend returns a non-JSON body (e.g., stacktrace or plain text error), keep it actionable.
+      throw new Error(text);
+    }
   }
 
   downloadSkillPdf(id: number): Observable<Blob> {
