@@ -11,6 +11,7 @@ const routes: Routes = [
   { path: 'profile-freelancer', component: ProfileFreelancerComponent },
   { path: 'skills', loadChildren: () => import('./skills/skills.module').then((m) => m.SkillsModule) },
   { path: 'skills-proof', loadChildren: () => import('./skills-proof/skills-proof.module').then(m => m.SkillsProofModule) },
+  { path: 'portfolio', loadChildren: () => import('./portfolio/portfolio.module').then((m) => m.PortfolioModule) },
 
   { path: 'skills-proof', loadChildren: () => import('./skills-proof/skills-proof.module').then((m) => m.SkillsProofModule) },
   { path: '**', redirectTo: '' },

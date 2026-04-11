@@ -1,0 +1,187 @@
+<div class="page" [class.theme-dark]="theme === 'dark'" [class.theme-light]="theme === 'light'">
+  <div class="hero">
+    <div class="left">
+      <div class="brand">FreeLink</div>
+      <h1>Portfolio Management</h1>
+      <p>Create achievements, then link skills and metrics to highlight project value.</p>
+
+      <div class="actionsTop">
+        <button class="btn primary" (click)="goNew()">+ Add an achievement</button>
+        <button class="btn ghost" (click)="goAnalytics()">Portfolio analytics</button>
+        <button class="btn ghost" routerLink="/portfolio">Achievements</button>
+        <button class="btn ghost" routerLink="/skills">Skills</button>
+      </div>
+
+      <div class="statsStrip">
+        <div class="statCard">
+          <span>Total portfolio</span>
+          <strong>{{ stats.totalAchievements }}</strong>
+        </div>
+        <div class="statCard">
+          <span>Affiches</span>
+          <strong>{{ stats.filteredAchievements }}</strong>
+        </div>
+        <div class="statCard">
+          <span>Freelancers</span>
+          <strong>{{ stats.distinctFreelancers }}</strong>
+        </div>
+        <div class="statCard">
+          <span>Derniere date</span>
+          <strong>{{ stats.latestCompletionDate }}</strong>
+        </div>
+      </div>
+
+      <div class="quickFilters">
+        <button class="filterChip" type="button" [class.active]="quickFilter === 'all' && selectedFreelancerId === null" (click)="resetFilters()">
+          Tous <span>{{ stats.totalAchievements }}</span>
+        </button>
+        <button class="filterChip" type="button" [class.active]="quickFilter === 'recent'" (click)="setQuickFilter('recent')">
+          Recents <span>{{ stats.recentAchievements }}</span>
+        </button>
+        <button class="filterChip" type="button" [class.active]="quickFilter === 'thisYear'" (click)="setQuickFilter('thisYear')">
+          Cette annee <span>{{ stats.thisYearAchievements }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="themeBar">
+        <button
+          class="themeSwitch"
+          type="button"
+          (click)="toggleTheme()"
+          [attr.aria-label]="'Basculer le theme de la page'"
+          [attr.aria-pressed]="theme === 'light'">
+          <span class="themeSwitchTrack">
+            <span class="themeSwitchThumb"></span>
+          </span>
+          <span>{{ theme === 'dark' ? 'Mode sombre' : 'Mode clair' }}</span>
+        </button>
+      </div>
+
+      <div class="search">
+        <input [(ngModel)]="q" (ngModelChange)="onQueryChange($event)" placeholder="Search achievements..." />
+        <span class="pill">{{ filtered().length }} achievements</span>
+      </div>
+
+      <div class="filterControls">
+        <div class="freelancerFilter">
+          <label>Freelancer</label>
+          <div class="freelancerDropdown" (click)="$event.stopPropagation()">
+            <button class="freelancerButton" type="button" (click)="toggleFreelancerMenu($event)" [attr.aria-expanded]="freelancerMenuOpen">
+              <span class="buttonText">{{ freelancerFilterLabel() }}</span>
+              <span class="buttonMeta">{{ selectedFreelancerCount() }}</span>
+              <span class="sortCaret" [class.open]="freelancerMenuOpen">⌄</span>
+            </button>
+
+            <div class="freelancerMenu" *ngIf="freelancerMenuOpen">
+              <input
+                class="freelancerSearchInput"
+                type="text"
+                [(ngModel)]="freelancerQuery"
+                placeholder="Chercher un freelancer..." />
+
+              <button class="freelancerOption" type="button" [class.active]="selectedFreelancerId === null" (click)="clearFreelancerFilter()">
+                <span>Tous les freelancers</span>
+                <strong>{{ freelancerFilters.length }}</strong>
+              </button>
+
+              <button
+                class="freelancerOption"
+                type="button"
+                *ngFor="let freelancer of filteredFreelancerFilters()"
+                [class.active]="selectedFreelancerId === freelancer.freelancerId"
+                (click)="setFreelancerFilter(freelancer.freelancerId)">
+                <span>Freelancer #{{ freelancer.freelancerId }}</span>
+                <strong>{{ freelancer.count }}</strong>
+              </button>
+
+              <div class="freelancerEmpty" *ngIf="filteredFreelancerFilters().length === 0">
+                Aucun freelancer pour cette recherche.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sort">
+          <label>Sort</label>
+          <div class="sortDropdown" (click)="$event.stopPropagation()">
+            <button class="sortButton" type="button" (click)="toggleSortMenu($event)" [attr.aria-expanded]="sortMenuOpen">
+              <span>{{ sortLabel() }}</span>
+              <span class="sortCaret" [class.open]="sortMenuOpen">⌄</span>
+            </button>
+
+            <div class="sortMenu" *ngIf="sortMenuOpen">
+              <button
+                class="sortOption"
+                type="button"
+                *ngFor="let option of sortOptions"
+                [class.active]="sortKey === option.key"
+                (click)="selectSort(option.key)">
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+          <button class="btn ghost small" type="button" (click)="sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); onSortChange()">
+            {{ sortDir === 'asc' ? 'ASC' : 'DESC' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="pager">
+        <button class="btn ghost small" type="button" (click)="prev()" [disabled]="page === 0">Prev</button>
+        <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+        <button class="btn ghost small" type="button" (click)="next()" [disabled]="page + 1 >= totalPages">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="state" *ngIf="loading">Loading...</div>
+
+    <div class="grid" *ngIf="!loading">
+      <div class="card" *ngFor="let a of paged(); let i = index">
+        <div class="top">
+          <div class="title">{{ a.title || '-' }}</div>
+          <div class="badge">Achievement</div>
+        </div>
+
+        <div class="meta">
+          <div class="metaBox">
+            <div class="label">No.</div>
+            <div class="value">{{ (page * size) + i + 1 }}</div>
+          </div>
+          <div class="metaBox">
+            <div class="label">Type</div>
+            <div class="value">Portfolio item</div>
+          </div>
+          <div class="metaBox">
+            <div class="label">Freelancer</div>
+            <div class="value">#{{ a.freelancerId || '-' }}</div>
+          </div>
+        </div>
+
+        <div class="meta two">
+          <div class="metaBox">
+            <div class="label">Completion date</div>
+            <div class="value">{{ a.completionDate || '-' }}</div>
+          </div>
+          <div class="metaBox">
+            <div class="label">Next step</div>
+            <div class="value">Skills + metric</div>
+          </div>
+        </div>
+
+        <div class="desc">{{ a.description || 'No description' }}</div>
+
+        <div class="actions">
+          <button class="btn ghost" (click)="goDetail(a.id)">Details</button>
+          <button class="btn danger" (click)="remove(a.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && filtered().length === 0">No achievements found.</div>
+  </div>
+</div>

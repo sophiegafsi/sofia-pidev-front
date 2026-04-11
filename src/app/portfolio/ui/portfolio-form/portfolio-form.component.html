@@ -1,0 +1,61 @@
+<div class="page" [class.theme-dark]="theme === 'dark'" [class.theme-light]="theme === 'light'">
+  <div class="panel">
+    <div class="header">
+      <h2>Add Achievement</h2>
+      <div class="headerActions">
+        <button class="themeSwitch" type="button" (click)="toggleTheme()" [attr.aria-pressed]="theme === 'light'">
+          <span class="themeSwitchTrack"><span class="themeSwitchThumb"></span></span>
+          <span>{{ theme === 'dark' ? 'Mode sombre' : 'Mode clair' }}</span>
+        </button>
+        <button class="btn ghost" type="button" (click)="back()">Back</button>
+      </div>
+    </div>
+
+    <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="row">
+        <label>Title</label>
+        <input formControlName="title" placeholder="e.g. Freelance marketplace API" />
+        <small class="hint error-text" *ngIf="hasError('title','required')">Title is required.</small>
+        <small class="hint error-text" *ngIf="hasError('title','trimmedMinLength')">Title is too short (min 2 characters).</small>
+        <small class="hint error-text" *ngIf="hasError('title','containsLetter')">Invalid title (must contain at least one letter).</small>
+        <small class="hint error-text" *ngIf="hasError('title','maxlength')">Title is too long.</small>
+      </div>
+
+      <div class="row">
+        <label>Description</label>
+        <textarea rows="4" formControlName="description" placeholder="Describe what was delivered..."></textarea>
+        <small class="hint error-text" *ngIf="hasError('description','required')">Description is required.</small>
+        <small class="hint error-text" *ngIf="hasError('description','trimmedMinLength')">Description is too short (min 5 characters).</small>
+        <small class="hint error-text" *ngIf="hasError('description','maxlength')">Description is too long.</small>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label>Completion date</label>
+          <input type="date" formControlName="completionDate" />
+          <small class="hint error-text" *ngIf="hasError('completionDate','required')">Completion date is required.</small>
+          <small class="hint error-text" *ngIf="hasError('completionDate','isoDate')">Invalid format (YYYY-MM-DD).</small>
+        </div>
+
+        <div>
+          <label>Freelancer ID</label>
+          <input type="number" min="1" step="1" formControlName="freelancerId" />
+          <small class="hint error-text" *ngIf="hasError('freelancerId','required')">Freelancer ID is required.</small>
+          <small class="hint error-text" *ngIf="hasError('freelancerId','positiveInt')">Freelancer ID must be an integer &gt; 0.</small>
+        </div>
+      </div>
+
+      <div class="hint stepHint">
+        After creation, you will be redirected to the detail page to add linked skills and the achievement metric.
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="submit" [disabled]="saving">
+          {{ saving ? 'Saving...' : 'Create Achievement' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

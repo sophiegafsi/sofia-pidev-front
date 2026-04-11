@@ -2,7 +2,10 @@
   <div class="panel">
     <div class="header">
       <h2>{{ id ? 'Edit Skill' : 'Add Skill' }}</h2>
-      <button class="btn ghost" (click)="back()">Back</button>
+      <div class="actions">
+        <button class="btn ghost" routerLink="/portfolio">Portfolio</button>
+        <button class="btn ghost" (click)="back()">Back</button>
+      </div>
     </div>
 
     <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>

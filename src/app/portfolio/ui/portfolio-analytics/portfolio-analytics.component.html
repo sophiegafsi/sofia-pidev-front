@@ -1,0 +1,320 @@
+<div class="page" [class.theme-dark]="theme === 'dark'" [class.theme-light]="theme === 'light'">
+  <div class="hero">
+    <div class="left">
+      <div class="brand">FreeLink</div>
+      <h1>Analyse intelligente du portfolio</h1>
+      <p>
+        Cette page montre le poids reel des skills dans les projets, le classement automatique
+        des competences et la force globale du profil freelancer.
+      </p>
+
+      <div class="actionsTop">
+        <button class="btn ghost" type="button" (click)="back()">Retour portfolio</button>
+        <button class="btn ghost" routerLink="/portfolio">Achievements</button>
+        <button class="btn ghost" routerLink="/skills">Skills</button>
+      </div>
+    </div>
+
+    <div class="right tools">
+      <button class="themeSwitch" type="button" (click)="toggleTheme()" [attr.aria-pressed]="theme === 'light'">
+        <span class="themeSwitchTrack"><span class="themeSwitchThumb"></span></span>
+        <span>{{ theme === 'dark' ? 'Mode sombre' : 'Mode clair' }}</span>
+      </button>
+
+      <div class="inputCard">
+        <label>ID freelancer</label>
+        <div class="inputRow ctaRow">
+          <input type="number" min="1" [(ngModel)]="freelancerId" />
+          <button class="btn primary" type="button" (click)="reloadForFreelancer()">Charger l'analyse</button>
+          <button class="btn ghost strongGhost" type="button" (click)="downloadPdf()" [disabled]="loading || exportingPdf">
+            {{ exportingPdf ? 'Generation PDF...' : 'Exporter le PDF' }}
+          </button>
+        </div>
+        <div class="inputHint">Le PDF contient les analyses et les donnees portfolio du freelancer charge.</div>
+      </div>
+
+      <div class="pill">Freelancer #{{ freelancerId }}</div>
+      <div class="pill" [ngClass]="profileTone(strength?.profileLevel)">
+        {{ profileLevelLabel(strength?.profileLevel) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="state" *ngIf="loading">Chargement des analytics...</div>
+
+    <ng-container *ngIf="!loading && strength && statistics">
+      <div class="summaryGrid">
+        <div class="summaryCard scoreHero">
+          <div class="eyebrow">Profile Strength Score</div>
+          <div class="bigScore">{{ strength.overallScore | number:'1.0-2' }}<span>/100</span></div>
+          <div class="scoreBar">
+            <div class="scoreBarFill" [style.width]="scoreWidth(strength.overallScore)"></div>
+          </div>
+          <div class="pill" [ngClass]="profileTone(strength.profileLevel)">
+            {{ profileLevelLabel(strength.profileLevel) }}
+          </div>
+          <p class="cardIntro">{{ profileSummary() }}</p>
+
+          <div class="miniGrid">
+            <div class="miniStat">
+              <span>Achievements</span>
+              <strong>{{ strength.achievementsCount }}</strong>
+            </div>
+            <div class="miniStat">
+              <span>Skills distinctes</span>
+              <strong>{{ strength.distinctSkillsCount }}</strong>
+            </div>
+            <div class="miniStat">
+              <span>Contribution moyenne</span>
+              <strong>{{ strength.averageContributionWeight | number:'1.0-2' }}</strong>
+            </div>
+            <div class="miniStat">
+              <span>Qualite moyenne</span>
+              <strong>{{ strength.averageProjectQuality | number:'1.0-2' }}/10</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="summaryCard">
+          <div class="eyebrow">Score Breakdown</div>
+          <p class="cardIntro">Chaque composant apporte jusqu'a 25 points au score global.</p>
+          <div class="breakdown">
+            <div class="breakdownRow">
+              <span>Volume d'achievements</span>
+              <strong>{{ strength.achievementsComponent | number:'1.0-2' }}</strong>
+            </div>
+            <div class="meter"><div [style.width]="scoreWidth(strength.achievementsComponent, 25)"></div></div>
+
+            <div class="breakdownRow">
+              <span>Diversite des skills</span>
+              <strong>{{ strength.diversityComponent | number:'1.0-2' }}</strong>
+            </div>
+            <div class="meter"><div [style.width]="scoreWidth(strength.diversityComponent, 25)"></div></div>
+
+            <div class="breakdownRow">
+              <span>Poids des contributions</span>
+              <strong>{{ strength.contributionComponent | number:'1.0-2' }}</strong>
+            </div>
+            <div class="meter"><div [style.width]="scoreWidth(strength.contributionComponent, 25)"></div></div>
+
+            <div class="breakdownRow">
+              <span>Qualite des projets</span>
+              <strong>{{ strength.qualityComponent | number:'1.0-2' }}</strong>
+            </div>
+            <div class="meter"><div [style.width]="scoreWidth(strength.qualityComponent, 25)"></div></div>
+          </div>
+        </div>
+
+        <div class="summaryCard">
+          <div class="eyebrow">Project Quality Metrics</div>
+          <p class="cardIntro">
+            Ces moyennes viennent des metriques de complexite, d'impact et de duree
+            renseignees sur les achievements.
+          </p>
+          <div class="metricRow">
+            <span>Complexite moyenne</span>
+            <strong>{{ statistics.averageComplexityScore | number:'1.0-2' }}/10</strong>
+          </div>
+          <div class="meter"><div [style.width]="metricWidth(statistics.averageComplexityScore)"></div></div>
+
+          <div class="metricRow">
+            <span>Impact moyen</span>
+            <strong>{{ statistics.averageImpactScore | number:'1.0-2' }}/10</strong>
+          </div>
+          <div class="meter"><div [style.width]="metricWidth(statistics.averageImpactScore)"></div></div>
+
+          <div class="metricRow">
+            <span>Duree moyenne</span>
+            <strong>{{ statistics.averageDurationDays | number:'1.0-2' }} jours</strong>
+          </div>
+          <div class="metricHint">Plus ces valeurs sont hautes, plus les projets sont juges solides.</div>
+        </div>
+      </div>
+
+      <div class="sectionGrid">
+        <div class="panel">
+          <div class="panelHead">
+            <div>
+              <div class="eyebrow">Skill Credibility Score</div>
+              <h2>Competences les plus demontrees</h2>
+              <p class="panelIntro">
+                Une skill gagne en credibilite si elle revient souvent, avec un niveau de contribution
+                fort, dans des projets complexes et impactants.
+              </p>
+            </div>
+            <span class="badge">{{ pluralize(credibility.length, 'skill analysee', 'skills analysees') }}</span>
+          </div>
+
+          <div class="cards">
+            <div class="analyticsCard" *ngFor="let row of credibility">
+              <div class="cardTop">
+                <div>
+                  <div class="title">{{ row.skillName }}</div>
+                  <div class="subtle">{{ pluralize(row.occurrences, 'utilisation', 'utilisations') }} dans le portfolio</div>
+                </div>
+                <div class="scoreChip">
+                  <span>Credibilite</span>
+                  <strong>{{ row.credibilityScore | number:'1.0-2' }}</strong>
+                </div>
+              </div>
+
+              <div class="meter strong"><div [style.width]="scoreWidth(row.credibilityScore)"></div></div>
+              <div class="cardHint">{{ contributionHelp(row.averageContributionWeight) }}</div>
+
+              <div class="infoGrid">
+                <div class="infoBox">
+                  <span>Occurrences</span>
+                  <strong>{{ row.occurrences }}</strong>
+                </div>
+                <div class="infoBox">
+                  <span>Contribution</span>
+                  <strong>{{ contributionLabel(row.averageContributionWeight) }}</strong>
+                </div>
+                <div class="infoBox">
+                  <span>Qualite projet</span>
+                  <strong>{{ row.projectQualityScore | number:'1.0-2' }}/10</strong>
+                </div>
+              </div>
+
+              <div class="miniBars">
+                <div>
+                  <label>Complexite</label>
+                  <div class="meter"><div [style.width]="metricWidth(row.averageComplexityScore)"></div></div>
+                </div>
+                <div>
+                  <label>Impact</label>
+                  <div class="meter"><div [style.width]="metricWidth(row.averageImpactScore)"></div></div>
+                </div>
+              </div>
+              <div class="subtle qualityText">Qualite globale : {{ qualityLabel(row.projectQualityScore) }}</div>
+            </div>
+          </div>
+
+          <div class="empty" *ngIf="credibility.length === 0">Aucune donnee d'usage des skills pour ce freelancer.</div>
+        </div>
+
+        <div class="panel">
+          <div class="panelHead">
+            <div>
+              <div class="eyebrow">Smart Skill Ranking</div>
+              <h2>Top skills ordonnees automatiquement</h2>
+              <p class="panelIntro">
+                Ce ranking combine la credibilite, la frequence d'utilisation et la qualite
+                des projets pour sortir les competences les plus importantes.
+              </p>
+            </div>
+            <span class="badge">{{ pluralize(ranking.length, 'skill classee', 'skills classees') }}</span>
+          </div>
+
+          <div class="rankList">
+            <div class="rankRow" *ngFor="let row of ranking">
+              <div class="rankBadge">Top {{ row.rank }}</div>
+              <div class="rankBody">
+                <div class="rankTop">
+                  <strong>{{ row.skillName }}</strong>
+                  <span>{{ qualityLabel(row.rankingScore / 10) }}</span>
+                </div>
+                <div class="meter strong"><div [style.width]="scoreWidth(row.rankingScore)"></div></div>
+                <div class="rankMeta">
+                  <span>Credibilite {{ row.credibilityScore | number:'1.0-2' }}</span>
+                  <span>Frequence {{ row.frequencyScore | number:'1.0-2' }}</span>
+                  <span>{{ pluralize(row.occurrences, 'utilisation', 'utilisations') }}</span>
+                </div>
+              </div>
+              <div class="rankScore">
+                <span>Score global</span>
+                <strong>{{ row.rankingScore | number:'1.0-2' }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty" *ngIf="ranking.length === 0">Le ranking apparaitra quand des skills seront liees aux achievements.</div>
+        </div>
+      </div>
+
+      <div class="sectionGrid">
+        <div class="panel">
+          <div class="panelHead">
+            <div>
+              <div class="eyebrow">Advanced Statistics</div>
+              <h2>Repartition des contributions</h2>
+              <p class="panelIntro">
+                Cette vue montre si les skills sont surtout utilisees en LOW, MEDIUM ou HIGH dans les projets.
+              </p>
+            </div>
+            <span class="badge">
+              {{ readableContributionLevel(strongestContribution(statistics.contributionDistribution)?.level) }}
+            </span>
+          </div>
+
+          <div class="distributionList">
+            <div class="distributionRow" *ngFor="let row of statistics.contributionDistribution">
+              <div class="distributionMeta">
+                <span class="pill" [ngClass]="contributionTone(row.level)">{{ readableContributionLevel(row.level) }}</span>
+                <strong>{{ row.count }}</strong>
+              </div>
+              <div class="meter strong"><div [style.width]="scoreWidth(row.percentage)"></div></div>
+              <div class="subtle">{{ row.percentage | number:'1.0-2' }}% des utilisations de skills</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelHead">
+            <div>
+              <div class="eyebrow">Advanced Statistics</div>
+              <h2>Timeline des achievements</h2>
+              <p class="panelIntro">
+                Chaque ligne regroupe une periode et montre combien d'achievements ont ete realises
+                ainsi que leur qualite moyenne.
+              </p>
+            </div>
+            <span class="badge">{{ pluralize(statistics.timeline.length, 'periode', 'periodes') }}</span>
+          </div>
+
+          <div class="timelineList">
+            <div class="timelineRow" *ngFor="let row of statistics.timeline">
+              <div class="timelineHeader">
+                <strong>{{ row.period }}</strong>
+                <span>{{ pluralize(row.achievementsCount, 'achievement', 'achievements') }}</span>
+              </div>
+              <div class="meter strong"><div [style.width]="timelineBarWidth(row)"></div></div>
+              <div class="subtle">Qualite moyenne {{ row.averageQualityScore | number:'1.0-2' }}/10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insightGrid">
+        <div class="insightCard">
+          <div class="eyebrow">Top ranked skill</div>
+          <h3>{{ statistics.topRankedSkill?.skillName || 'N/A' }}</h3>
+          <p *ngIf="statistics.topRankedSkill">
+            Rang {{ statistics.topRankedSkill.rank }} avec un score global de
+            {{ statistics.topRankedSkill.rankingScore | number:'1.0-2' }}.
+          </p>
+        </div>
+
+        <div class="insightCard">
+          <div class="eyebrow">Most credible skill</div>
+          <h3>{{ statistics.mostCredibleSkill?.skillName || 'N/A' }}</h3>
+          <p *ngIf="statistics.mostCredibleSkill">
+            Score de credibilite {{ statistics.mostCredibleSkill.credibilityScore | number:'1.0-2' }}
+            base sur {{ pluralize(statistics.mostCredibleSkill.occurrences, 'usage concret', 'usages concrets') }}.
+          </p>
+        </div>
+
+        <div class="insightCard">
+          <div class="eyebrow">Strongest achievement</div>
+          <h3>{{ statistics.strongestAchievement?.title || 'N/A' }}</h3>
+          <p *ngIf="statistics.strongestAchievement">
+            Qualite {{ statistics.strongestAchievement.qualityScore | number:'1.0-2' }}/10 avec
+            {{ pluralize(statistics.strongestAchievement.linkedSkillsCount, 'skill liee', 'skills liees') }}.
+          </p>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

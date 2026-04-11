@@ -1,0 +1,11 @@
+{
+  "/api/portfolio": {
+    "target": "http://localhost:8081",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/portfolio": "/portfolio"
+    },
+    "logLevel": "debug"
+  }
+}

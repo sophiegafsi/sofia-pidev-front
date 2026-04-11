@@ -1,7 +1,10 @@
 <div class="page">
   <div class="header">
     <h2>🏆 Top Skills Scoreboard</h2>
-    <button class="btn ghost" (click)="back()">Back</button>
+    <div class="actions">
+      <button class="btn ghost" routerLink="/portfolio">Portfolio</button>
+      <button class="btn ghost" (click)="back()">Back</button>
+    </div>
   </div>
 
   <div *ngIf="loading">Loading...</div>

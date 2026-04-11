@@ -1,0 +1,171 @@
+<div class="page" [class.theme-dark]="theme === 'dark'" [class.theme-light]="theme === 'light'">
+  <div class="hero">
+    <div class="left">
+      <div class="brand">FreeLink</div>
+      <h1>{{ achievement?.title || 'Portfolio Detail' }}</h1>
+      <p>{{ achievement?.description || 'Manage linked skills and project metrics.' }}</p>
+      <div class="actionsTop">
+        <button class="btn ghost" type="button" (click)="back()">Back to portfolio</button>
+        <button class="btn ghost" type="button" (click)="goAnalytics()">Analytics</button>
+        <button class="btn ghost" routerLink="/skills">View skills</button>
+      </div>
+    </div>
+
+    <div class="right detailMeta">
+      <button class="themeSwitch" type="button" (click)="toggleTheme()" [attr.aria-pressed]="theme === 'light'">
+        <span class="themeSwitchTrack"><span class="themeSwitchThumb"></span></span>
+        <span>{{ theme === 'dark' ? 'Mode sombre' : 'Mode clair' }}</span>
+      </button>
+      <div class="pill">Freelancer #{{ achievement?.freelancerId || '-' }}</div>
+      <div class="pill">Date {{ achievement?.completionDate || '-' }}</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="state" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="state" *ngIf="loading">Loading...</div>
+
+    <div class="layout" *ngIf="!loading">
+      <div class="panel">
+        <div class="header">
+          <h2>Linked Skills</h2>
+          <span class="badge">{{ achievementSkills.length }} skills</span>
+        </div>
+
+        <div class="error" *ngIf="skillMessage">{{ skillMessage }}</div>
+
+        <form class="form compact" [formGroup]="skillForm" (ngSubmit)="addSkill()">
+          <div class="row two">
+            <div>
+              <label>Skill</label>
+              <select formControlName="skillId">
+                <option [ngValue]="null">Select a skill</option>
+                <option *ngFor="let skill of availableSkills()" [ngValue]="skill.id">
+                  {{ skill.name }} - {{ skill.level }}
+                </option>
+              </select>
+              <small class="hint" *ngIf="availableSkills().length === 0">
+                No more available skills to link. Create a new skill or remove one from this achievement.
+              </small>
+              <small class="hint error-text" *ngIf="hasSkillError('skillId','required')">Please select a skill.</small>
+              <small class="hint error-text" *ngIf="hasSkillError('skillId','positiveInt')">Invalid skill selection.</small>
+            </div>
+            <div>
+              <label>Contribution level</label>
+              <select formControlName="contributionLevel">
+                <option value="">Select a level</option>
+                <option *ngFor="let level of contributionLevels" [value]="level">{{ level }}</option>
+              </select>
+              <small class="hint error-text" *ngIf="hasSkillError('contributionLevel','required')">Contribution level is required.</small>
+              <small class="hint error-text" *ngIf="hasSkillError('contributionLevel','trimmedMinLength')">Value is too short.</small>
+              <small class="hint error-text" *ngIf="hasSkillError('contributionLevel','maxlength')">Value is too long.</small>
+            </div>
+          </div>
+
+          <div class="row">
+            <label>Usage description</label>
+            <textarea rows="3" formControlName="usageDescription" placeholder="Explain how the skill was used..."></textarea>
+            <small class="hint error-text" *ngIf="hasSkillError('usageDescription','required')">Usage description is required.</small>
+            <small class="hint error-text" *ngIf="hasSkillError('usageDescription','trimmedMinLength')">Description is too short.</small>
+            <small class="hint error-text" *ngIf="hasSkillError('usageDescription','maxlength')">Description is too long.</small>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="submit" [disabled]="savingSkill">
+              {{ savingSkill ? 'Saving...' : 'Add Skill' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="grid">
+          <div class="card" *ngFor="let row of achievementSkills">
+            <div class="top">
+              <div class="title">{{ skillLabel(row) }}</div>
+              <div class="badge">{{ row.contributionLevel || '-' }}</div>
+            </div>
+            <div class="desc">{{ row.usageDescription || 'No usage description' }}</div>
+            <div class="actions">
+              <button class="btn danger" type="button" (click)="removeSkill(row.id)">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty" *ngIf="achievementSkills.length === 0">No linked skills yet.</div>
+      </div>
+
+      <div class="panel">
+        <div class="header">
+          <h2>Metrics</h2>
+          <span class="badge">{{ metrics.length }} metric</span>
+        </div>
+
+        <div class="error" *ngIf="metricMessage">{{ metricMessage }}</div>
+
+        <form class="form compact" [formGroup]="metricForm" (ngSubmit)="addMetric()" *ngIf="metrics.length === 0">
+          <div class="row three">
+            <div>
+              <label>Complexity score</label>
+              <input type="number" min="1" max="10" step="1" formControlName="complexityScore" />
+              <small class="hint error-text" *ngIf="hasMetricError('complexityScore','required')">Complexity score is required.</small>
+              <small class="hint error-text" *ngIf="hasMetricError('complexityScore','number')">Invalid score.</small>
+              <small class="hint error-text" *ngIf="hasMetricError('complexityScore','min') || hasMetricError('complexityScore','max')">Score must be between 1 and 10.</small>
+            </div>
+            <div>
+              <label>Impact score</label>
+              <input type="number" min="1" max="10" step="1" formControlName="impactScore" />
+              <small class="hint error-text" *ngIf="hasMetricError('impactScore','required')">Impact score is required.</small>
+              <small class="hint error-text" *ngIf="hasMetricError('impactScore','number')">Invalid score.</small>
+              <small class="hint error-text" *ngIf="hasMetricError('impactScore','min') || hasMetricError('impactScore','max')">Score must be between 1 and 10.</small>
+            </div>
+            <div>
+              <label>Duration days</label>
+              <input type="number" min="1" step="1" formControlName="durationDays" />
+              <small class="hint error-text" *ngIf="hasMetricError('durationDays','required')">Duration is required.</small>
+              <small class="hint error-text" *ngIf="hasMetricError('durationDays','positiveInt')">Duration must be an integer &gt; 0.</small>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="submit" [disabled]="savingMetric">
+              {{ savingMetric ? 'Saving...' : 'Add Metric' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="hint stepHint" *ngIf="metrics.length > 0">
+          Metric already exists. Delete it if you want to create a new one, because the backend endpoints provided do not include update.
+        </div>
+
+        <div class="grid metricGrid">
+          <div class="card" *ngFor="let metric of metrics">
+            <div class="meta">
+              <div class="metaBox">
+                <div class="label">Complexity</div>
+                <div class="value">{{ metric.complexityScore }}/10</div>
+              </div>
+              <div class="metaBox">
+                <div class="label">Impact</div>
+                <div class="value">{{ metric.impactScore }}/10</div>
+              </div>
+              <div class="metaBox">
+                <div class="label">Duration</div>
+                <div class="value">{{ metric.durationDays }} days</div>
+              </div>
+            </div>
+            <div class="actions">
+              <button
+                class="btn danger"
+                type="button"
+                [disabled]="isDeletingMetric(metric.id)"
+                (click)="removeMetric(metric.id)">
+                {{ isDeletingMetric(metric.id) ? 'Deleting...' : 'Delete' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty" *ngIf="metrics.length === 0">No metric yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
