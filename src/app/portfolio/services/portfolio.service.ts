@@ -3,8 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import {
   Achievement,
+  AchievementDescriptionResult,
   AchievementInsight,
   AchievementMetric,
+  AchievementMetricSuggestion,
   AchievementSkill,
   AchievementTimeline,
   ContributionDistribution,
@@ -12,6 +14,7 @@ import {
   ProfileStrength,
   SkillCredibility,
   SkillRanking,
+  TextToolResult,
 } from '../models/portfolio.model';
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +53,12 @@ export class PortfolioService {
           .get(`${this.baseUrl}/achievements/${id}`, { responseType: 'text' })
           .pipe(map((res) => this.normalizeAchievement(this.parseTextResponse(res) as Record<string, unknown>))),
     ]);
+  }
+
+  updateAchievement(achievement: Achievement): Observable<Achievement> {
+    return this.http
+      .put<unknown>(`${this.baseUrl}/achievements`, achievement)
+      .pipe(map((res) => this.normalizeAchievement(res as Record<string, unknown>)));
   }
 
   deleteAchievement(id: number): Observable<void> {
@@ -104,6 +113,12 @@ export class PortfolioService {
     ]);
   }
 
+  getSuggestedAchievementMetric(achievementId: number): Observable<AchievementMetricSuggestion> {
+    return this.http
+      .get<unknown>(`${this.baseUrl}/achievement-metrics/achievement/${achievementId}/suggested`)
+      .pipe(map((res) => this.normalizeAchievementMetricSuggestion(res as Record<string, unknown>)));
+  }
+
   deleteAchievementMetric(id: number): Observable<void> {
     return this.http.delete(`${this.baseUrl}/achievement-metrics/${id}`, { responseType: 'text' }).pipe(map(() => undefined));
   }
@@ -152,6 +167,24 @@ export class PortfolioService {
       responseType: 'blob',
       headers: { Accept: 'application/pdf' },
     });
+  }
+
+  generateAchievementDescription(achievementId: number): Observable<AchievementDescriptionResult> {
+    return this.http
+      .post<unknown>(`${this.baseUrl}/ai/generate-description`, { achievementId })
+      .pipe(map((res) => this.normalizeAchievementDescriptionResult(res as Record<string, unknown>)));
+  }
+
+  rewriteAchievementText(text: string): Observable<TextToolResult> {
+    return this.http
+      .post<unknown>(`${this.baseUrl}/ai/rewrite-text`, { text })
+      .pipe(map((res) => this.normalizeTextToolResult(res as Record<string, unknown>)));
+  }
+
+  translateAchievementText(text: string, targetLanguage = 'ENGLISH'): Observable<TextToolResult> {
+    return this.http
+      .post<unknown>(`${this.baseUrl}/ai/translate-text`, { text, targetLanguage })
+      .pipe(map((res) => this.normalizeTextToolResult(res as Record<string, unknown>)));
   }
 
   private trySequential<T>(requests: Array<() => Observable<T>>, index = 0): Observable<T> {
@@ -269,6 +302,35 @@ export class PortfolioService {
       impactScore: this.asNumber(raw['impactScore'] ?? raw['impact_score']) ?? 0,
       durationDays: this.asNumber(raw['durationDays'] ?? raw['duration_days']) ?? 0,
       achievement: achievement?.['id'] || achievementId ? { id: this.asNumber(achievement?.['id']) ?? achievementId } : null,
+    };
+  }
+
+  private normalizeAchievementMetricSuggestion(raw: Record<string, unknown>): AchievementMetricSuggestion {
+    return {
+      complexityScore: this.asNumber(raw['complexityScore']) ?? 1,
+      impactScore: this.asNumber(raw['impactScore']) ?? 1,
+      linkedSkillsCount: this.asNumber(raw['linkedSkillsCount']) ?? 0,
+      highContributionCount: this.asNumber(raw['highContributionCount']) ?? 0,
+      mediumContributionCount: this.asNumber(raw['mediumContributionCount']) ?? 0,
+      lowContributionCount: this.asNumber(raw['lowContributionCount']) ?? 0,
+    };
+  }
+
+  private normalizeAchievementDescriptionResult(raw: Record<string, unknown>): AchievementDescriptionResult {
+    return {
+      achievementId: this.asNumber(raw['achievementId']) ?? 0,
+      title: String(raw['title'] ?? ''),
+      generatedDescription: String(raw['generatedDescription'] ?? ''),
+    };
+  }
+
+  private normalizeTextToolResult(raw: Record<string, unknown>): TextToolResult {
+    return {
+      originalText: String(raw['originalText'] ?? ''),
+      transformedText: String(raw['transformedText'] ?? ''),
+      operation: String(raw['operation'] ?? ''),
+      targetLanguage: String(raw['targetLanguage'] ?? ''),
+      changed: Boolean(raw['changed']),
     };
   }
 

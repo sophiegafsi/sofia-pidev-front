@@ -9,6 +9,7 @@ const routes: Routes = [
   { path: '', component: PortfolioListComponent },
   { path: 'analytics', component: PortfolioAnalyticsComponent },
   { path: 'new', component: PortfolioFormComponent },
+  { path: 'edit/:id', component: PortfolioFormComponent },
   { path: 'detail/:id', component: PortfolioDetailComponent },
 ];
 

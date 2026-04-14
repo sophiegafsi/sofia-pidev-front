@@ -68,7 +68,6 @@ export class SkillFormComponent implements OnInit {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.errorMessage = 'Please fill in all fields correctly.';
-      window.alert('Please fill in all fields correctly before saving.');
       return;
     }
 

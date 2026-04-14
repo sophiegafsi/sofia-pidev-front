@@ -89,7 +89,6 @@ export class ProofFormComponent implements OnInit {
     this.errorMessage = '';
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      window.alert('Please fill in all fields correctly before submitting.');
       return;
     }
 
@@ -105,7 +104,6 @@ export class ProofFormComponent implements OnInit {
     if (!this.proofId && !this.selectedFile) {
       this.saving = false;
       this.errorMessage = 'Photo is required.';
-      window.alert('Please choose a proof photo.');
       return;
     }
 
@@ -143,7 +141,6 @@ export class ProofFormComponent implements OnInit {
           console.error(err);
           this.saving = false;
           this.errorMessage = `Skill #${skillId} not found. Create the skill before adding a proof.`;
-          window.alert(this.errorMessage);
         },
       });
       return;

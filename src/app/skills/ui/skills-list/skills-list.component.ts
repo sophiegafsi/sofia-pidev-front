@@ -150,7 +150,7 @@ export class SkillsListComponent implements OnInit {
 
   downloadPdf(skillId?: number): void {
     if (!skillId) {
-      window.alert('Skill ID not found: cannot generate the PDF.');
+      this.errorMessage = 'Skill ID not found: cannot generate the PDF.';
       return;
     }
 
@@ -181,7 +181,6 @@ export class SkillsListComponent implements OnInit {
 
   remove(id?: number): void {
     if (!id) return;
-    if (!confirm('Delete this skill?')) return;
     this.skillsProofService
       .getBySkillId(id)
       .pipe(catchError(() => of([])))

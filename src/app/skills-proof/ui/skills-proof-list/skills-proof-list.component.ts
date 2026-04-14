@@ -210,7 +210,6 @@ export class SkillsProofListComponent implements OnInit {
 
   remove(id?: number): void {
     if (!id) return;
-    if (!confirm('Delete this proof?')) return;
 
     this.proofsService.delete(id).subscribe({
       next: () => this.reload(),

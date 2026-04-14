@@ -18,7 +18,7 @@
           <strong>{{ stats.totalAchievements }}</strong>
         </div>
         <div class="statCard">
-          <span>Affiches</span>
+          <span>Visible now</span>
           <strong>{{ stats.filteredAchievements }}</strong>
         </div>
         <div class="statCard">
@@ -26,20 +26,20 @@
           <strong>{{ stats.distinctFreelancers }}</strong>
         </div>
         <div class="statCard">
-          <span>Derniere date</span>
+          <span>Latest date</span>
           <strong>{{ stats.latestCompletionDate }}</strong>
         </div>
       </div>
 
       <div class="quickFilters">
         <button class="filterChip" type="button" [class.active]="quickFilter === 'all' && selectedFreelancerId === null" (click)="resetFilters()">
-          Tous <span>{{ stats.totalAchievements }}</span>
+          All <span>{{ stats.totalAchievements }}</span>
         </button>
         <button class="filterChip" type="button" [class.active]="quickFilter === 'recent'" (click)="setQuickFilter('recent')">
-          Recents <span>{{ stats.recentAchievements }}</span>
+          Recent <span>{{ stats.recentAchievements }}</span>
         </button>
         <button class="filterChip" type="button" [class.active]="quickFilter === 'thisYear'" (click)="setQuickFilter('thisYear')">
-          Cette annee <span>{{ stats.thisYearAchievements }}</span>
+          This year <span>{{ stats.thisYearAchievements }}</span>
         </button>
       </div>
     </div>
@@ -50,12 +50,12 @@
           class="themeSwitch"
           type="button"
           (click)="toggleTheme()"
-          [attr.aria-label]="'Basculer le theme de la page'"
+          [attr.aria-label]="'Toggle page theme'"
           [attr.aria-pressed]="theme === 'light'">
           <span class="themeSwitchTrack">
             <span class="themeSwitchThumb"></span>
           </span>
-          <span>{{ theme === 'dark' ? 'Mode sombre' : 'Mode clair' }}</span>
+          <span>{{ theme === 'dark' ? 'Dark mode' : 'Light mode' }}</span>
         </button>
       </div>
 
@@ -79,10 +79,10 @@
                 class="freelancerSearchInput"
                 type="text"
                 [(ngModel)]="freelancerQuery"
-                placeholder="Chercher un freelancer..." />
+                placeholder="Search a freelancer..." />
 
               <button class="freelancerOption" type="button" [class.active]="selectedFreelancerId === null" (click)="clearFreelancerFilter()">
-                <span>Tous les freelancers</span>
+                <span>All freelancers</span>
                 <strong>{{ freelancerFilters.length }}</strong>
               </button>
 
@@ -97,7 +97,7 @@
               </button>
 
               <div class="freelancerEmpty" *ngIf="filteredFreelancerFilters().length === 0">
-                Aucun freelancer pour cette recherche.
+                No freelancer matches this search.
               </div>
             </div>
           </div>
@@ -130,7 +130,7 @@
 
       <div class="pager">
         <button class="btn ghost small" type="button" (click)="prev()" [disabled]="page === 0">Prev</button>
-        <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+        <span>Page {{ page + 1 }} of {{ totalPages }}</span>
         <button class="btn ghost small" type="button" (click)="next()" [disabled]="page + 1 >= totalPages">Next</button>
       </div>
     </div>
@@ -177,6 +177,7 @@
 
         <div class="actions">
           <button class="btn ghost" (click)="goDetail(a.id)">Details</button>
+          <button class="btn ghost" (click)="goEdit(a.id)">Edit</button>
           <button class="btn danger" (click)="remove(a.id)">Delete</button>
         </div>
       </div>

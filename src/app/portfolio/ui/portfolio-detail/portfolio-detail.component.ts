@@ -6,7 +6,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { Skill } from '../../../skills/models/skill.model';
 import { SkillsService } from '../../../skills/services/skills.service';
-import { Achievement, AchievementMetric, AchievementSkill } from '../../models/portfolio.model';
+import {
+  Achievement,
+  AchievementDescriptionResult,
+  AchievementMetric,
+  AchievementMetricSuggestion,
+  AchievementSkill,
+} from '../../models/portfolio.model';
 import { PortfolioService } from '../../services/portfolio.service';
 import { PortfolioTheme, PortfolioThemeService } from '../../services/portfolio-theme.service';
 
@@ -22,14 +28,19 @@ export class PortfolioDetailComponent implements OnInit {
   achievement?: Achievement;
   achievementSkills: AchievementSkill[] = [];
   metrics: AchievementMetric[] = [];
+  suggestedMetric?: AchievementMetricSuggestion;
   skillsById = new Map<number, Skill>();
 
   loading = false;
   savingSkill = false;
   savingMetric = false;
+  generatingDescription = false;
+  applyingGeneratedDescription = false;
   errorMessage = '';
   skillMessage = '';
   metricMessage = '';
+  aiMessage = '';
+  generatedDescription = '';
   theme: PortfolioTheme = 'dark';
   contributionLevels = ['HIGH', 'MEDIUM', 'LOW'];
   deletingMetricIds = new Set<number>();
@@ -59,8 +70,6 @@ export class PortfolioDetailComponent implements OnInit {
     });
 
     this.metricForm = this.fb.group({
-      complexityScore: [1, [Validators.required, PortfolioDetailComponent.scoreValidator(1, 10)]],
-      impactScore: [1, [Validators.required, PortfolioDetailComponent.scoreValidator(1, 10)]],
       durationDays: [1, [Validators.required, PortfolioDetailComponent.positiveIntValidator()]],
     });
 
@@ -94,11 +103,13 @@ export class PortfolioDetailComponent implements OnInit {
       achievement: this.portfolioService.getAchievementById(this.achievementId),
       skills: this.portfolioService.getAchievementSkills(this.achievementId),
       metrics: this.portfolioService.getAchievementMetrics(this.achievementId),
+      suggestion: this.portfolioService.getSuggestedAchievementMetric(this.achievementId),
     }).subscribe({
       next: (res) => {
         this.achievement = res.achievement;
         this.achievementSkills = res.skills || [];
         this.metrics = res.metrics || [];
+        this.suggestedMetric = res.suggestion;
         this.loading = false;
       },
       error: (err) => {
@@ -132,12 +143,15 @@ export class PortfolioDetailComponent implements OnInit {
     if (!this.achievementId) return;
     if (this.skillForm.invalid) {
       this.skillForm.markAllAsTouched();
-      alert('Please fill in the skill form correctly.');
+      this.skillMessage = 'Please fill in the skill form correctly.';
       return;
     }
 
     const skillId = this.parsePositiveInt(this.skillForm.value.skillId);
-    if (!skillId) return;
+    if (!skillId) {
+      this.skillMessage = 'Add skill failed. Check that Skill ID is valid.';
+      return;
+    }
 
     const payload: AchievementSkill = {
       skillId,
@@ -173,13 +187,14 @@ export class PortfolioDetailComponent implements OnInit {
     if (!this.achievementId) return;
     if (this.metricForm.invalid) {
       this.metricForm.markAllAsTouched();
-      alert('Please fill in the metric form correctly.');
+      this.metricMessage = 'Please fill in the metric form correctly.';
       return;
     }
 
+    const suggestion = this.suggestedMetric;
     const payload: AchievementMetric = {
-      complexityScore: Number(this.metricForm.value.complexityScore),
-      impactScore: Number(this.metricForm.value.impactScore),
+      complexityScore: Number(suggestion?.complexityScore ?? 1),
+      impactScore: Number(suggestion?.impactScore ?? 1),
       durationDays: Number(this.metricForm.value.durationDays),
     };
 
@@ -187,7 +202,7 @@ export class PortfolioDetailComponent implements OnInit {
     this.portfolioService.addAchievementMetric(this.achievementId, payload).subscribe({
       next: (created) => {
         this.savingMetric = false;
-        this.metricMessage = 'Metric added successfully.';
+        this.metricMessage = 'Metric saved. Complexity and impact are now linked to the current skills.';
         this.metrics = [
           {
             ...payload,
@@ -195,7 +210,7 @@ export class PortfolioDetailComponent implements OnInit {
             achievement: { id: this.achievementId },
           },
         ];
-        this.metricForm.reset({ complexityScore: 1, impactScore: 1, durationDays: 1 });
+        this.metricForm.reset({ durationDays: 1 });
         this.refreshSoon();
       },
       error: (err) => {
@@ -250,9 +265,9 @@ export class PortfolioDetailComponent implements OnInit {
           this.savingMetric = false;
 
           if (created) {
-            this.metricMessage = 'Metric added successfully.';
+            this.metricMessage = 'Metric saved. Complexity and impact are now linked to the current skills.';
             this.metrics = rows || [];
-            this.metricForm.reset({ complexityScore: 1, impactScore: 1, durationDays: 1 });
+            this.metricForm.reset({ durationDays: 1 });
             return;
           }
 
@@ -312,7 +327,6 @@ export class PortfolioDetailComponent implements OnInit {
 
   removeSkill(id?: number): void {
     if (!id) return;
-    if (!confirm('Delete this linked skill?')) return;
 
     const beforeDelete = this.achievementSkills.slice();
     this.achievementSkills = this.achievementSkills.filter((skill) => skill.id !== id);
@@ -439,6 +453,68 @@ export class PortfolioDetailComponent implements OnInit {
 
   back(): void {
     this.router.navigate(['/portfolio']);
+  }
+
+  generateDescription(): void {
+    if (!this.achievementId || this.generatingDescription) return;
+
+    this.generatingDescription = true;
+    this.aiMessage = '';
+
+    this.portfolioService.generateAchievementDescription(this.achievementId).subscribe({
+      next: (result: AchievementDescriptionResult) => {
+        this.generatedDescription = result.generatedDescription || '';
+        this.generatingDescription = false;
+        this.aiMessage = this.generatedDescription
+          ? 'A portfolio-ready summary has been generated.'
+          : 'No description could be generated for this achievement.';
+      },
+      error: (err) => {
+        console.error(err);
+        this.generatingDescription = false;
+        const status = err?.status ? ` (HTTP ${err.status})` : '';
+        this.aiMessage = `Unable to generate the description${status}.`;
+      },
+    });
+  }
+
+  applyGeneratedDescription(): void {
+    if (!this.achievement || !this.generatedDescription || this.applyingGeneratedDescription) return;
+
+    this.applyingGeneratedDescription = true;
+    this.aiMessage = '';
+
+    const updatedAchievement: Achievement = {
+      ...this.achievement,
+      description: this.generatedDescription,
+    };
+
+    this.portfolioService.updateAchievement(updatedAchievement).subscribe({
+      next: (achievement) => {
+        this.achievement = {
+          ...updatedAchievement,
+          ...(achievement || {}),
+          description: this.generatedDescription,
+        };
+        this.applyingGeneratedDescription = false;
+        this.aiMessage = 'Generated summary applied to the achievement description.';
+      },
+      error: (err) => {
+        console.error(err);
+        this.applyingGeneratedDescription = false;
+        const status = err?.status ? ` (HTTP ${err.status})` : '';
+        this.aiMessage = `Unable to apply the generated description${status}.`;
+      },
+    });
+  }
+
+  contributionMixSummary(): string {
+    const suggestion = this.suggestedMetric;
+    if (!suggestion) {
+      return 'Waiting for linked skills to compute the metric suggestion.';
+    }
+
+    return `${suggestion.linkedSkillsCount} linked skills: ${suggestion.highContributionCount} high, ${suggestion.mediumContributionCount} medium, ${suggestion.lowContributionCount} low contributions.`;
   }
 
   goAnalytics(): void {

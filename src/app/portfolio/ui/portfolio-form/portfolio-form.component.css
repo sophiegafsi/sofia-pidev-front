@@ -88,6 +88,100 @@ input:focus,textarea:focus{border-color:rgba(242,153,74,.55);box-shadow:0 0 0 4p
 
 .hint{display:block;margin-top:8px;font-size:12px;color:rgba(255,255,255,.75)}
 .stepHint{background:rgba(255,255,255,.06);border:1px solid var(--fl-border);border-radius:14px;padding:10px;font-weight:800}
+.toolPanel{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--fl-border);
+  border-radius:18px;
+  padding:16px;
+  display:grid;
+  gap:12px;
+}
+.toolHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.toolHeader h3{
+  margin:0 0 6px;
+  color:#fff;
+  font-size:20px;
+}
+.toolHeader p{
+  margin:0;
+  color:rgba(255,255,255,.78);
+  max-width:560px;
+}
+.toolBadge{
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(126,208,163,.32);
+  background:rgba(126,208,163,.14);
+  color:#dffff0;
+  font-weight:900;
+  white-space:nowrap;
+}
+.toolActions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.toolSelect{
+  min-width:150px;
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid var(--fl-border2);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font-weight:900;
+  outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.toolSelect:focus{
+  border-color:rgba(242,153,74,.55);
+  box-shadow:0 0 0 4px rgba(242,153,74,.16);
+}
+.toolSelect option{
+  color:#17324c;
+}
+.howItWorks{
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--fl-border);
+  border-radius:16px;
+  padding:14px;
+  display:grid;
+  gap:10px;
+}
+.howTitle{
+  color:#fff;
+  font-weight:900;
+  font-size:16px;
+}
+.howGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.howCard{
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--fl-border);
+  border-radius:14px;
+  padding:12px;
+  display:grid;
+  gap:6px;
+}
+.howCard strong{
+  color:#fff;
+}
+.howCard span{
+  color:rgba(255,255,255,.78);
+  font-size:13px;
+  line-height:1.5;
+}
+.aiStatus{
+  font-weight:900;
+  color:#8ce1ff;
+}
 .error-text{color:#ffb1a9;font-weight:900}
 .actions{display:flex;justify-content:flex-end;margin-top:10px}
 .btn{padding:12px 16px;border-radius:16px;border:1px solid transparent;cursor:pointer;font-weight:900;transition:transform .18s ease,filter .18s ease,border-color .18s ease}
@@ -128,8 +222,33 @@ input:focus,textarea:focus{border-color:rgba(242,153,74,.55);box-shadow:0 0 0 4p
   background:#edf4fb;
   border-color:rgba(20,51,83,.10);
 }
+.page.theme-light .toolPanel{
+  background:#f4f9ff;
+  border-color:rgba(20,51,83,.12);
+}
+.page.theme-light .howItWorks,
+.page.theme-light .howCard{
+  background:#f7fbff;
+  border-color:rgba(20,51,83,.12);
+}
+.page.theme-light .howTitle,
+.page.theme-light .howCard strong{color:#17324c}
+.page.theme-light .howCard span{color:rgba(23,50,76,.72)}
+.page.theme-light .toolHeader h3{color:#17324c}
+.page.theme-light .toolHeader p{color:rgba(23,50,76,.72)}
+.page.theme-light .toolBadge{
+  background:rgba(126,208,163,.18);
+  color:#1f5a3c;
+  border-color:rgba(31,90,60,.16);
+}
+.page.theme-light .aiStatus{color:#1d6e93}
 .page.theme-light .btn.ghost{
   background:rgba(255,255,255,.74);
+  color:#17324c;
+  border-color:rgba(20,51,83,.14);
+}
+.page.theme-light .toolSelect{
+  background:#fff;
   color:#17324c;
   border-color:rgba(20,51,83,.14);
 }
@@ -138,4 +257,6 @@ input:focus,textarea:focus{border-color:rgba(242,153,74,.55);box-shadow:0 0 0 4p
   .header{align-items:flex-start;flex-direction:column}
   .headerActions{width:100%;justify-content:space-between}
   .row.two{grid-template-columns:1fr}
+  .toolHeader{flex-direction:column}
+  .howGrid{grid-template-columns:1fr}
 }

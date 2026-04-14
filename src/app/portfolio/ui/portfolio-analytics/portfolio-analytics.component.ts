@@ -143,19 +143,19 @@ export class PortfolioAnalyticsComponent implements OnInit {
 
   profileLevelLabel(level?: string): string {
     const value = String(level || '').toUpperCase();
-    if (!value) return 'Niveau en attente';
-    if (value === 'ELITE') return 'Profil elite';
-    if (value === 'STRONG') return 'Profil solide';
-    if (value === 'DEVELOPING') return 'Profil en progression';
-    return 'Profil a consolider';
+    if (!value) return 'Pending level';
+    if (value === 'ELITE') return 'Elite profile';
+    if (value === 'STRONG') return 'Strong profile';
+    if (value === 'DEVELOPING') return 'Developing profile';
+    return 'Profile to strengthen';
   }
 
   profileSummary(): string {
     const score = Number(this.strength?.overallScore ?? 0);
-    if (score >= 85) return 'Le profil est tres convaincant, avec des projets varies et un impact fort.';
-    if (score >= 70) return 'Le profil est solide, deja appuye par des realisations credibles.';
-    if (score >= 50) return 'Le profil est coherent, mais il peut encore gagner en profondeur.';
-    return 'Le profil est en construction et a besoin de plus de preuves concretes.';
+    if (score >= 85) return 'The profile is highly convincing, with varied projects and strong impact.';
+    if (score >= 70) return 'The profile is solid and already backed by credible deliveries.';
+    if (score >= 50) return 'The profile is coherent, but it can still gain more depth.';
+    return 'The profile is still growing and needs more concrete proof points.';
   }
 
   scoreWidth(score?: number, max = 100): string {
@@ -169,32 +169,32 @@ export class PortfolioAnalyticsComponent implements OnInit {
 
   contributionLabel(weight?: number): string {
     const value = Number(weight ?? 0);
-    if (value >= 2.5) return 'Forte';
-    if (value >= 1.5) return 'Moyenne';
-    return 'Faible';
+    if (value >= 2.5) return 'High';
+    if (value >= 1.5) return 'Medium';
+    return 'Low';
   }
 
   contributionHelp(weight?: number): string {
     const value = Number(weight ?? 0);
-    if (value >= 2.5) return 'La skill est souvent utilisee avec un role central dans les projets.';
-    if (value >= 1.5) return 'La skill contribue regulierement, sans etre toujours la competence principale.';
-    return 'La skill apparait plutot en support sur les projets actuels.';
+    if (value >= 2.5) return 'This skill is often used in a central role within the projects.';
+    if (value >= 1.5) return 'This skill contributes regularly without always being the main driver.';
+    return 'This skill currently appears mostly as a support capability.';
   }
 
   readableContributionLevel(level?: string): string {
     const value = String(level || '').toUpperCase();
-    if (value === 'HIGH') return 'Forte';
-    if (value === 'MEDIUM') return 'Moyenne';
-    if (value === 'LOW') return 'Faible';
+    if (value === 'HIGH') return 'High';
+    if (value === 'MEDIUM') return 'Medium';
+    if (value === 'LOW') return 'Low';
     return value || 'N/A';
   }
 
   qualityLabel(score?: number): string {
     const value = Number(score ?? 0);
-    if (value >= 8.5) return 'Excellente';
-    if (value >= 7) return 'Solide';
-    if (value >= 5.5) return 'Correcte';
-    return 'A renforcer';
+    if (value >= 8.5) return 'Excellent';
+    if (value >= 7) return 'Strong';
+    if (value >= 5.5) return 'Fair';
+    return 'Needs work';
   }
 
   pluralize(count?: number, singular = 'element', plural = 'elements'): string {

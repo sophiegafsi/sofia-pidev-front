@@ -58,8 +58,8 @@ export class PortfolioListComponent implements OnInit {
   };
   readonly sortOptions: Array<{ key: SortKey; label: string }> = [
     { key: 'id', label: 'ID' },
-    { key: 'title', label: 'Titre' },
-    { key: 'completionDate', label: 'Date' },
+    { key: 'title', label: 'Title' },
+    { key: 'completionDate', label: 'Completion date' },
     { key: 'freelancerId', label: 'Freelancer' },
   ];
   private autoReloadAttempts = 0;
@@ -146,7 +146,7 @@ export class PortfolioListComponent implements OnInit {
   }
 
   freelancerFilterLabel(): string {
-    return this.selectedFreelancerId === null ? 'Tous les freelancers' : `Freelancer #${this.selectedFreelancerId}`;
+    return this.selectedFreelancerId === null ? 'All freelancers' : `Freelancer #${this.selectedFreelancerId}`;
   }
 
   selectedFreelancerCount(): number {
@@ -237,9 +237,13 @@ export class PortfolioListComponent implements OnInit {
     this.router.navigate(['/portfolio/detail', id]);
   }
 
+  goEdit(id?: number): void {
+    if (!id) return;
+    this.router.navigate(['/portfolio/edit', id]);
+  }
+
   remove(id?: number): void {
     if (!id) return;
-    if (!confirm('Delete this achievement?')) return;
 
     const beforeDelete = this.allAchievements.slice();
     this.allAchievements = this.allAchievements.filter((achievement) => achievement.id !== id);
