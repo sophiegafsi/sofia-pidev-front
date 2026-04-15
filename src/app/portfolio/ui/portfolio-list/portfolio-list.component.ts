@@ -6,7 +6,7 @@ import { Achievement } from '../../models/portfolio.model';
 import { PortfolioService } from '../../services/portfolio.service';
 import { PortfolioTheme, PortfolioThemeService } from '../../services/portfolio-theme.service';
 
-type SortKey = 'id' | 'title' | 'completionDate' | 'freelancerId';
+type SortKey = 'title' | 'completionDate' | 'freelancerId';
 type QuickFilter = 'all' | 'recent' | 'thisYear';
 
 interface FreelancerFilter {
@@ -41,7 +41,7 @@ export class PortfolioListComponent implements OnInit {
   selectedFreelancerId: number | null = null;
   freelancerMenuOpen = false;
   freelancerQuery = '';
-  sortKey: SortKey = 'id';
+  sortKey: SortKey = 'title';
   sortMenuOpen = false;
   sortDir: 'asc' | 'desc' = 'asc';
   page = 0;
@@ -57,7 +57,6 @@ export class PortfolioListComponent implements OnInit {
     thisYearAchievements: 0,
   };
   readonly sortOptions: Array<{ key: SortKey; label: string }> = [
-    { key: 'id', label: 'ID' },
     { key: 'title', label: 'Title' },
     { key: 'completionDate', label: 'Completion date' },
     { key: 'freelancerId', label: 'Freelancer' },
@@ -107,7 +106,7 @@ export class PortfolioListComponent implements OnInit {
   }
 
   sortLabel(): string {
-    return this.sortOptions.find((option) => option.key === this.sortKey)?.label || 'ID';
+    return this.sortOptions.find((option) => option.key === this.sortKey)?.label || 'Title';
   }
 
   setQuickFilter(filter: QuickFilter): void {
@@ -325,8 +324,7 @@ export class PortfolioListComponent implements OnInit {
     filtered.sort((a, b) => {
       if (this.sortKey === 'title') return dir * String(a.title || '').localeCompare(String(b.title || ''), undefined, { sensitivity: 'base' });
       if (this.sortKey === 'completionDate') return dir * String(a.completionDate || '').localeCompare(String(b.completionDate || ''));
-      if (this.sortKey === 'freelancerId') return dir * (Number(a.freelancerId || 0) - Number(b.freelancerId || 0));
-      return dir * (Number(a.id || 0) - Number(b.id || 0));
+      return dir * (Number(a.freelancerId || 0) - Number(b.freelancerId || 0));
     });
 
     return filtered;

@@ -40,6 +40,14 @@ input,select,textarea{
   box-shadow:0 1px 0 rgba(12,22,44,.08);
   transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
 }
+select option{
+  background:#17324c;
+  color:#eef5ff;
+}
+select option:checked{
+  background:#2a4b6a;
+  color:#ffffff;
+}
 textarea{min-height:120px;resize:vertical}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,.70)}
 input:focus,select:focus,textarea:focus{border-color:rgba(242,153,74,.55);box-shadow:0 0 0 4px rgba(242,153,74,.16)}

@@ -64,6 +64,14 @@
   color:#fff;
   font-weight:900;
 }
+.sort select option{
+  background:#17324c;
+  color:#eef5ff;
+}
+.sort select option:checked{
+  background:#2a4b6a;
+  color:#ffffff;
+}
 .sort select:focus{border-color:rgba(242,153,74,.55);box-shadow:0 0 0 4px rgba(242,153,74,.16)}
 
 .btn.small{padding:8px 10px;border-radius:12px}

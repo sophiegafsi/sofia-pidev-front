@@ -66,7 +66,7 @@ export class PortfolioDetailComponent implements OnInit {
     this.skillForm = this.fb.group({
       skillId: [null, [Validators.required, PortfolioDetailComponent.positiveIntValidator()]],
       contributionLevel: ['', [Validators.required, PortfolioDetailComponent.trimmedMinLengthValidator(2), Validators.maxLength(60)]],
-      usageDescription: ['', [Validators.required, PortfolioDetailComponent.trimmedMinLengthValidator(5), Validators.maxLength(800)]],
+      usageDescription: ['', [Validators.maxLength(800)]],
     });
 
     this.metricForm = this.fb.group({
@@ -143,7 +143,7 @@ export class PortfolioDetailComponent implements OnInit {
     if (!this.achievementId) return;
     if (this.skillForm.invalid) {
       this.skillForm.markAllAsTouched();
-      this.skillMessage = 'Please fill in the skill form correctly.';
+      this.skillMessage = 'Please fill in the required fields (skill and contribution level).';
       return;
     }
 

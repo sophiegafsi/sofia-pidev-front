@@ -22,7 +22,7 @@ export class SkillsListComponent implements OnInit {
   totalPages = 1;
   totalElements = 0;
 
-  sortField: 'id' | 'name' | 'level' | 'yearsOfExperience' = 'id';
+  sortField: 'name' | 'level' | 'yearsOfExperience' = 'name';
   sortDir: 'asc' | 'desc' = 'asc';
 
   constructor(
