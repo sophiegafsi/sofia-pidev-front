@@ -45,6 +45,16 @@ export interface TextToolResult {
   changed: boolean;
 }
 
+export interface SpringAiReviewResult {
+  title: string;
+  description: string;
+  feedback: string;
+  provider: string;
+  model: string;
+  fallbackUsed: boolean;
+  available: boolean;
+}
+
 export interface SkillCredibility {
   skillId: number;
   skillName: string;

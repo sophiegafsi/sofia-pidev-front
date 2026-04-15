@@ -22,13 +22,14 @@ type TranslationTarget =
 })
 export class PortfolioFormComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly blockedWords = ['shit', 'fuck', 'damn', 'idiot', 'merde'];
 
   id?: number;
   saving = false;
   errorMessage = '';
   toolMessage = '';
-  toolAction: 'rewrite' | 'translate' | '' = '';
+  springAiFeedback = '';
+  springAiProvider = '';
+  toolAction: 'rewrite' | 'translate' | 'mask' | 'review' | '' = '';
   theme: PortfolioTheme = 'dark';
   form: any;
 
@@ -83,16 +84,6 @@ export class PortfolioFormComponent implements OnInit {
       completionDate: ['', [Validators.required, PortfolioFormComponent.isoDateValidator()]],
       freelancerId: [1, [Validators.required, PortfolioFormComponent.positiveIntValidator()]],
     });
-
-    this.form
-      .get('description')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value: string) => {
-        const masked = this.maskBlockedWords(String(value || ''));
-        if (masked !== value) {
-          this.form.get('description')?.setValue(masked, { emitEvent: false });
-        }
-      });
 
     const routeId = this.route.snapshot.paramMap.get('id');
     if (routeId) {
@@ -235,10 +226,59 @@ export class PortfolioFormComponent implements OnInit {
     }
 
     this.lastDescriptionSnapshot = description;
-    const masked = this.maskBlockedWords(description);
-    this.setDescription(masked);
-    this.toolMessage =
-      masked === description ? 'No blocked word was found in the description.' : 'Blocked words were masked automatically.';
+    this.toolAction = 'mask';
+    this.toolMessage = '';
+
+    this.portfolioService.maskAchievementText(description).subscribe({
+      next: (result) => {
+        const transformed = String(result.transformedText || '').trim();
+        if (transformed) {
+          this.setDescription(transformed);
+        }
+        this.toolAction = '';
+        this.toolMessage =
+          transformed && transformed !== description
+            ? 'Blocked words were detected dynamically and masked.'
+            : 'No blocked word was found in the description.';
+      },
+      error: (err) => {
+        console.error(err);
+        this.toolAction = '';
+        const status = err?.status ? ` (HTTP ${err.status})` : '';
+        this.toolMessage = `Unable to sanitize the description${status}.`;
+      },
+    });
+  }
+
+  reviewDescriptionWithSpringAi(): void {
+    const title = this.currentTitle();
+    const description = this.currentDescription();
+    if (!title && !description) {
+      this.toolMessage = 'Write a title or description first to use the Spring AI review.';
+      return;
+    }
+
+    this.toolAction = 'review';
+    this.toolMessage = '';
+    this.springAiFeedback = '';
+    this.springAiProvider = '';
+
+    this.portfolioService.getSpringAiReview(title, description).subscribe({
+      next: (result) => {
+        this.toolAction = '';
+        this.springAiFeedback = String(result.feedback || '').trim();
+        this.springAiProvider = [result.provider, result.model].filter(Boolean).join(' - ');
+        this.toolMessage = result.fallbackUsed
+          ? 'Spring AI local server is not available, so the safe local fallback generated the review.'
+          : 'Spring AI local review generated successfully.';
+      },
+      error: (err) => {
+        console.error(err);
+        this.toolAction = '';
+        const status = err?.status ? ` (HTTP ${err.status})` : '';
+        this.toolMessage = `Unable to run the Spring AI review${status}.`;
+      },
+    });
   }
 
   undoDescriptionTool(): void {
@@ -251,12 +291,8 @@ export class PortfolioFormComponent implements OnInit {
     this.lastDescriptionSnapshot = '';
   }
 
-  isToolBusy(action: 'rewrite' | 'translate'): boolean {
+  isToolBusy(action: 'rewrite' | 'translate' | 'mask' | 'review'): boolean {
     return this.toolAction === action;
-  }
-
-  blockedWordsLabel(): string {
-    return this.blockedWords.join(', ');
   }
 
   selectedTargetLanguageLabel(): string {
@@ -357,18 +393,13 @@ export class PortfolioFormComponent implements OnInit {
     return String(this.form?.get('description')?.value || '').trim();
   }
 
+  private currentTitle(): string {
+    return String(this.form?.get('title')?.value || '').trim();
+  }
+
   private setDescription(value: string): void {
     this.form?.get('description')?.setValue(String(value || '').trim());
     this.form?.get('description')?.markAsDirty();
-  }
-
-  private maskBlockedWords(value: string): string {
-    let masked = String(value || '');
-    for (const word of this.blockedWords) {
-      const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      masked = masked.replace(regex, '*'.repeat(word.length));
-    }
-    return masked;
   }
 
   private static trimmedMinLengthValidator(min: number): ValidatorFn {

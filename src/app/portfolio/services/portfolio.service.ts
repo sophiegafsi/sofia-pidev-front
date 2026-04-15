@@ -14,6 +14,7 @@ import {
   ProfileStrength,
   SkillCredibility,
   SkillRanking,
+  SpringAiReviewResult,
   TextToolResult,
 } from '../models/portfolio.model';
 
@@ -187,6 +188,18 @@ export class PortfolioService {
       .pipe(map((res) => this.normalizeTextToolResult(res as Record<string, unknown>)));
   }
 
+  maskAchievementText(text: string): Observable<TextToolResult> {
+    return this.http
+      .post<unknown>(`${this.baseUrl}/ai/mask-bad-words`, { text })
+      .pipe(map((res) => this.normalizeTextToolResult(res as Record<string, unknown>)));
+  }
+
+  getSpringAiReview(title: string, description: string): Observable<SpringAiReviewResult> {
+    return this.http
+      .post<unknown>(`${this.baseUrl}/ai/spring-review`, { title, description })
+      .pipe(map((res) => this.normalizeSpringAiReviewResult(res as Record<string, unknown>)));
+  }
+
   private trySequential<T>(requests: Array<() => Observable<T>>, index = 0): Observable<T> {
     return requests[index]().pipe(
       catchError((err) => {
@@ -331,6 +344,18 @@ export class PortfolioService {
       operation: String(raw['operation'] ?? ''),
       targetLanguage: String(raw['targetLanguage'] ?? ''),
       changed: Boolean(raw['changed']),
+    };
+  }
+
+  private normalizeSpringAiReviewResult(raw: Record<string, unknown>): SpringAiReviewResult {
+    return {
+      title: String(raw['title'] ?? ''),
+      description: String(raw['description'] ?? ''),
+      feedback: String(raw['feedback'] ?? ''),
+      provider: String(raw['provider'] ?? ''),
+      model: String(raw['model'] ?? ''),
+      fallbackUsed: Boolean(raw['fallbackUsed']),
+      available: Boolean(raw['available']),
     };
   }
 

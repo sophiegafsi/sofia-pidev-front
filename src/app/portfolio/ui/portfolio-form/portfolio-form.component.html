@@ -33,7 +33,7 @@
         <div class="toolHeader">
           <div>
             <h3>AI Writing Tools</h3>
-            <p>Free offline helpers to polish, translate, and sanitize the description before saving.</p>
+            <p>Helpers to polish, translate, sanitize, and review the achievement before saving.</p>
           </div>
         </div>
 
@@ -47,14 +47,24 @@
           <button class="btn ghost" type="button" [disabled]="isToolBusy('translate')" (click)="translateDescription()">
             {{ isToolBusy('translate') ? 'Translating...' : ('Translate to ' + selectedTargetLanguageLabel()) }}
           </button>
-          <button class="btn ghost" type="button" (click)="maskDescription()">Mask bad words</button>
+          <button class="btn ghost" type="button" [disabled]="isToolBusy('mask')" (click)="maskDescription()">
+            {{ isToolBusy('mask') ? 'Sanitizing...' : 'Mask bad words' }}
+          </button>
+          <button class="btn ghost" type="button" [disabled]="isToolBusy('review')" (click)="reviewDescriptionWithSpringAi()">
+            {{ isToolBusy('review') ? 'Reviewing...' : 'Spring AI review' }}
+          </button>
           <button class="btn ghost" type="button" [disabled]="!lastDescriptionSnapshot" (click)="undoDescriptionTool()">Undo</button>
         </div>
 
         <div class="hint stepHint">
-          Blocked words are masked automatically while typing: {{ blockedWordsLabel() }}.
+          Unsafe words are detected dynamically by the backend before save, and Spring AI can use a local Ollama model without any paid API key.
         </div>
         <div class="hint aiStatus" *ngIf="toolMessage">{{ toolMessage }}</div>
+        <div class="springAiReview" *ngIf="springAiFeedback">
+          <div class="springAiReviewTitle">Spring AI Review</div>
+          <div class="springAiReviewMeta" *ngIf="springAiProvider">{{ springAiProvider }}</div>
+          <pre class="springAiReviewBody">{{ springAiFeedback }}</pre>
+        </div>
 
         <div class="howItWorks">
           <div class="howTitle">How this AI works</div>
@@ -69,7 +79,11 @@
             </div>
             <div class="howCard">
               <strong>Safe text</strong>
-              <span>Blocked words are masked automatically before the achievement is saved.</span>
+              <span>Bad words are detected dynamically in the backend and masked automatically before the achievement is saved.</span>
+            </div>
+            <div class="howCard">
+              <strong>Spring AI local</strong>
+              <span>Uses Spring AI with a local Ollama model when available, otherwise it falls back safely without crashing.</span>
             </div>
           </div>
         </div>
